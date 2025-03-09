@@ -19,6 +19,7 @@ const formatJSTDate = (date: Date) => {
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
+    second: '2-digit',
     hour12: false
   }).format(date);
 };
@@ -35,7 +36,7 @@ export default function Todo({ todo, onDelete, onClick, isSelected }: TodoProps)
         <span className="text-gray-800 text-sm">
           {todo.title}
         </span>
-        <span className="text-gray-400 text-xs">
+        <span className="text-gray-400 text-xs font-mono">
           {formatJSTDate(todo.createdAt)}
         </span>
       </div>
