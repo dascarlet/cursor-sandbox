@@ -1,46 +1,57 @@
 'use client';
 
-import { FaMarkdown, FaClock, FaMoon, FaSort, FaEdit } from 'react-icons/fa';
+import { FaMarkdown, FaClock, FaMoon, FaSort, FaLanguage } from 'react-icons/fa';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function TopPage() {
+  const { t, language, setLanguage } = useLanguage();
+
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold text-gray-800">Welcome to Markdown Editor</h1>
-        <p className="text-xl text-gray-600">A modern, feature-rich markdown editor for your writing needs</p>
+      <div className="flex justify-between items-center">
+        <div className="text-center flex-grow">
+          <h1 className="text-4xl font-bold text-gray-800">{t('topPage.welcome')}</h1>
+          <p className="text-xl text-gray-600 mt-4">{t('topPage.subtitle')}</p>
+        </div>
+        <button
+          onClick={() => setLanguage(language === 'en' ? 'ja' : 'en')}
+          className="p-2 text-gray-600 hover:text-gray-800 transition-colors rounded-lg hover:bg-gray-100 flex items-center gap-2"
+          aria-label="Switch language"
+        >
+          <FaLanguage size={20} />
+          <span>{language === 'en' ? '日本語' : 'English'}</span>
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FeatureCard
           icon={<FaMarkdown className="w-8 h-8" />}
-          title="Real-time Markdown Preview"
-          description="See your markdown rendered in real-time as you type with syntax highlighting"
+          title={t('topPage.features.markdownPreview.title')}
+          description={t('topPage.features.markdownPreview.description')}
         />
         <FeatureCard
           icon={<FaClock className="w-8 h-8" />}
-          title="JST Timestamp"
-          description="Automatic JST timestamp tracking for all your articles"
+          title={t('topPage.features.timestamp.title')}
+          description={t('topPage.features.timestamp.description')}
         />
         <FeatureCard
           icon={<FaMoon className="w-8 h-8" />}
-          title="Dark Mode Support"
-          description="Comfortable writing experience in both light and dark modes"
+          title={t('topPage.features.darkMode.title')}
+          description={t('topPage.features.darkMode.description')}
         />
         <FeatureCard
           icon={<FaSort className="w-8 h-8" />}
-          title="Flexible Organization"
-          description="Sort and organize your articles by creation time"
+          title={t('topPage.features.organization.title')}
+          description={t('topPage.features.organization.description')}
         />
       </div>
 
       <div className="bg-blue-50 p-6 rounded-lg">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Getting Started</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">{t('topPage.gettingStarted.title')}</h2>
         <ol className="list-decimal list-inside space-y-2 text-gray-600">
-          <li>Click on "Articles" in the sidebar to view your articles</li>
-          <li>Create a new article using the "Add Article" button</li>
-          <li>Write your content using markdown syntax</li>
-          <li>Use the preview pane to see the rendered output</li>
-          <li>Your content is automatically saved as you type</li>
+          {t('topPage.gettingStarted.steps').split(',').map((step, index) => (
+            <li key={index}>{step}</li>
+          ))}
         </ol>
       </div>
     </div>
