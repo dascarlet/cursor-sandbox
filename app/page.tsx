@@ -109,10 +109,33 @@ Here's a sentence with a footnote[^1].
 [^1]: This is the footnote.
 `;
 
+// Add storage key constant
+const STORAGE_KEY_PREFIX = 'article_content_';
+
 export default function Home() {
   const [selectedTodo, setSelectedTodo] = useState<TodoType | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
+
+  // Load saved content when todo is selected
+  useEffect(() => {
+    if (selectedTodo) {
+      const savedContent = localStorage.getItem(STORAGE_KEY_PREFIX + selectedTodo.id);
+      if (savedContent) {
+        setSelectedTodo(prev => ({
+          ...prev!,
+          content: savedContent
+        }));
+      }
+    }
+  }, [selectedTodo?.id]);
+
+  // Save content to localStorage whenever it changes
+  useEffect(() => {
+    if (selectedTodo?.id && selectedTodo?.content) {
+      localStorage.setItem(STORAGE_KEY_PREFIX + selectedTodo.id, selectedTodo.content);
+    }
+  }, [selectedTodo?.content, selectedTodo?.id]);
 
   // Debounced save indicator
   useEffect(() => {
