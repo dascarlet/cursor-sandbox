@@ -10,10 +10,11 @@ Next.jsで構築された最新のマークダウンエディターです。シ�
 ### English
 - Create and manage multiple articles
 - Real-time markdown preview
-- Syntax highlighting for code blocks using Prism.js
+- Syntax highlighting for code blocks using react-syntax-highlighter
 - Complete local storage persistence
   - Article content and metadata
   - Last selected article restoration
+  - Last visited page restoration
   - Automatic content saving
   - Clean removal of deleted articles
 - Modern UI features
@@ -28,14 +29,19 @@ Next.jsで構築された最新のマークダウンエディターです。シ�
   - Multi-line indentation
   - Syntax highlighting for multiple languages
   - Code block copy buttons
+- Real-time synchronization
+  - Title updates sync across components
+  - Article list updates in real-time
+  - Cross-tab synchronization
 
 ### 日本語
 - 複数記事の作成と管理
 - リアルタイムマークダウンプレビュー
-- Prism.jsによるコードブロックのシンタックスハイライト
+- react-syntax-highlighterによるコードブロックのシンタックスハイライト
 - 完全なローカルストレージの永続化
   - 記事のコンテンツとメタデータ
   - 最後に選択した記事の復元
+  - 最後に訪問したページの復元
   - 自動コンテンツ保存
   - 削除記事のクリーンな除去
 - モダンなUI機能
@@ -50,6 +56,10 @@ Next.jsで構築された最新のマークダウンエディターです。シ�
   - 複数行インデント
   - 複数言語のシンタックスハイライト
   - コードブロックのコピーボタン
+- リアルタイム同期
+  - タイトル更新のコンポーネント間同期
+  - 記事リストのリアルタイム更新
+  - クロスタブ同期
 
 ## Getting Started / 始め方
 
@@ -76,6 +86,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
   - `ArticleList.tsx` - Article list management and persistence / 記事リストの管理と永続化
   - `Article.tsx` - Individual article component / 個別記事のコンポーネント
   - `Sidebar.tsx` - Navigation sidebar / ナビゲーションサイドバー
+  - `TopPage.tsx` - Home page component / ホームページコンポーネント
 - `app/types/` - TypeScript type definitions / TypeScript型定義
   - `article.ts` - Article type definitions / 記事の型定義
 - `app/i18n/` - Internationalization files / 国際化ファイル
@@ -87,7 +98,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 - [Next.js](https://nextjs.org) - React framework / Reactフレームワーク
 - [React Markdown](https://github.com/remarkjs/react-markdown) - Markdown rendering / マークダウンレンダリング
-- [Prism.js](https://prismjs.com) - Syntax highlighting / シンタックスハイライト
+- [react-syntax-highlighter](https://github.com/react-syntax-highlighter/react-syntax-highlighter) - Syntax highlighting / シンタックスハイライト
 - [Tailwind CSS](https://tailwindcss.com) - Styling / スタイリング
 - [TypeScript](https://www.typescriptlang.org) - Type safety / 型安全性
 
@@ -97,6 +108,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Articles and their content are automatically saved to localStorage / 記事とそのコンテンツは自動的にlocalStorageに保存
 - Content is saved separately for each article to optimize performance / パフォーマンスを最適化するため、コンテンツは記事ごとに個別に保存
 - Last selected article is remembered across page reloads / ページの再読み込み時に最後に選択した記事を記憶
+- Last visited page is restored on reload / ページの再読み込み時に最後に訪問したページを復元
 - Complete cleanup when articles are deleted / 記事削除時の完全なクリーンアップ
 
 ### Editor Features / エディター機能
@@ -113,6 +125,11 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - Dark theme support / ダークテーマ対応
 - Language switching between English and Japanese / 日本語と英語の言語切り替え
 - Modern and intuitive interface / モダンで直感的なインターフェース
+
+### Synchronization / 同期
+- Real-time title updates across components / コンポーネント間のリアルタイムタイトル更新
+- Cross-tab synchronization of article changes / 記事変更のクロスタブ同期
+- Automatic state restoration on page reload / ページ再読み込み時の自動状態復元
 
 ## Learn More / もっと詳しく
 
