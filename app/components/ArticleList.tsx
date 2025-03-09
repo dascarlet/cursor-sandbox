@@ -67,46 +67,58 @@ export default function ArticleList({ onArticleSelect, onNavigate }: ArticleList
 
   // Load articles on client-side mount
   useEffect(() => {
-    setIsLoading(true);
-    try {
-      // Load articles list
-      const storedArticles = localStorage.getItem(STORAGE_KEY);
-      if (storedArticles) {
-        const parsedArticles = JSON.parse(storedArticles);
-        // Convert stored date strings back to Date objects and load content
-        const articlesWithDates = parsedArticles.map((article: { id: string; title: string; createdAt: string }) => {
-          // Load content and title for each article
-          const content = localStorage.getItem(STORAGE_KEY_PREFIX + article.id) || '';
-          const title = localStorage.getItem(STORAGE_KEY_TITLE_PREFIX + article.id) || article.title;
-          return {
-            ...article,
-            content,
-            title,
-            createdAt: new Date(article.createdAt)
-          };
-        });
+    const loadArticles = async () => {
+      setIsLoading(true);
+      try {
+        // Load articles list
+        const storedArticles = localStorage.getItem(STORAGE_KEY);
+        if (storedArticles) {
+          const parsedArticles = JSON.parse(storedArticles);
+          // Convert stored date strings back to Date objects and load content
+          const articlesWithDates = parsedArticles.map((article: { id: string; title: string; createdAt: string }) => {
+            // Load content and title for each article
+            const content = localStorage.getItem(STORAGE_KEY_PREFIX + article.id) || '';
+            const title = localStorage.getItem(STORAGE_KEY_TITLE_PREFIX + article.id) || article.title;
+            return {
+              ...article,
+              content,
+              title,
+              createdAt: new Date(article.createdAt)
+            };
+          });
 
-        // Set articles first
-        setArticles(articlesWithDates);
+          // Set articles first
+          setArticles(articlesWithDates);
 
-        // Then try to restore the selected article
-        const lastSelectedId = localStorage.getItem('lastSelectedArticleId');
-        if (lastSelectedId) {
-          const lastSelected = articlesWithDates.find((article: ArticleType) => article.id === lastSelectedId);
-          if (lastSelected) {
-            setSelectedArticle(lastSelected);
-            onArticleSelect(lastSelected);
-            // Switch to articles page when an article is selected
-            onNavigate?.('articles');
+          // Then try to restore the selected article
+          const lastSelectedId = localStorage.getItem('lastSelectedArticleId');
+          if (lastSelectedId) {
+            const lastSelected = articlesWithDates.find((article: ArticleType) => article.id === lastSelectedId);
+            if (lastSelected) {
+              // Ensure we have the latest content for the selected article
+              const latestContent = localStorage.getItem(STORAGE_KEY_PREFIX + lastSelectedId) || lastSelected.content;
+              const latestTitle = localStorage.getItem(STORAGE_KEY_TITLE_PREFIX + lastSelectedId) || lastSelected.title;
+              const updatedLastSelected = {
+                ...lastSelected,
+                content: latestContent,
+                title: latestTitle
+              };
+              setSelectedArticle(updatedLastSelected);
+              onArticleSelect(updatedLastSelected);
+              // Switch to articles page when an article is selected
+              onNavigate?.('articles');
+            }
           }
         }
+      } catch (error) {
+        console.error('Error loading articles:', error);
+        localStorage.removeItem(STORAGE_KEY);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Error loading articles:', error);
-      localStorage.removeItem(STORAGE_KEY);
-    } finally {
-      setIsLoading(false);
-    }
+    };
+
+    loadArticles();
   }, []);
 
   // Listen for storage changes and custom events
@@ -128,29 +140,57 @@ export default function ArticleList({ onArticleSelect, onNavigate }: ArticleList
             };
           });
           setArticles(articlesWithDates);
+
+          // Update selected article if it exists in the new list
+          if (selectedArticle) {
+            const updatedSelected = articlesWithDates.find((article: ArticleType) => article.id === selectedArticle.id);
+            if (updatedSelected) {
+              setSelectedArticle(updatedSelected);
+              onArticleSelect(updatedSelected);
+            }
+          }
+        }
+      } else if (e.key?.startsWith(STORAGE_KEY_PREFIX)) {
+        // Content was updated
+        const articleId = e.key.replace(STORAGE_KEY_PREFIX, '');
+        const content = e.newValue || '';
+        setArticles(prevArticles => 
+          prevArticles.map(article => 
+            article.id === articleId 
+              ? { ...article, content }
+              : article
+          )
+        );
+        if (selectedArticle?.id === articleId) {
+          const updatedArticle = selectedArticle ? { ...selectedArticle, content } : null;
+          setSelectedArticle(updatedArticle);
+          onArticleSelect(updatedArticle);
+        }
+      } else if (e.key?.startsWith(STORAGE_KEY_TITLE_PREFIX)) {
+        // Title was updated
+        const articleId = e.key.replace(STORAGE_KEY_TITLE_PREFIX, '');
+        const title = e.newValue || '';
+        setArticles(prevArticles => 
+          prevArticles.map(article => 
+            article.id === articleId 
+              ? { ...article, title }
+              : article
+          )
+        );
+        if (selectedArticle?.id === articleId) {
+          const updatedArticle = selectedArticle ? { ...selectedArticle, title } : null;
+          setSelectedArticle(updatedArticle);
+          onArticleSelect(updatedArticle);
         }
       }
     };
 
-    const handleTitleUpdate = (e: CustomEvent<{ id: string; title: string }>) => {
-      const { id, title } = e.detail;
-      setArticles(prevArticles => 
-        prevArticles.map(article => 
-          article.id === id 
-            ? { ...article, title }
-            : article
-        )
-      );
-    };
-
     window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('articleTitleUpdate', handleTitleUpdate as EventListener);
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('articleTitleUpdate', handleTitleUpdate as EventListener);
     };
-  }, []);
+  }, [selectedArticle]);
 
   // Save articles to localStorage whenever they change
   useEffect(() => {
@@ -164,15 +204,27 @@ export default function ArticleList({ onArticleSelect, onNavigate }: ArticleList
           content: '' // Don't store content here as it's stored separately
         }));
         setStorageItem(STORAGE_KEY, JSON.stringify(articlesForStorage));
+
+        // Ensure content is saved for each article
+        articles.forEach(article => {
+          const currentContent = localStorage.getItem(STORAGE_KEY_PREFIX + article.id);
+          if (currentContent !== article.content) {
+            setStorageItem(STORAGE_KEY_PREFIX + article.id, article.content);
+          }
+          const currentTitle = localStorage.getItem(STORAGE_KEY_TITLE_PREFIX + article.id);
+          if (currentTitle !== article.title) {
+            setStorageItem(STORAGE_KEY_TITLE_PREFIX + article.id, article.title);
+          }
+        });
       } else {
         // Clear all storage when no articles remain
         removeStorageItem(STORAGE_KEY);
         removeStorageItem('lastSelectedArticleId');
-        // Clear all content items
+        // Clear all content and title items
         if (typeof window !== 'undefined') {
           const allKeys = Object.keys(localStorage);
           allKeys.forEach(key => {
-            if (key.startsWith(STORAGE_KEY_PREFIX)) {
+            if (key.startsWith(STORAGE_KEY_PREFIX) || key.startsWith(STORAGE_KEY_TITLE_PREFIX)) {
               removeStorageItem(key);
             }
           });
@@ -196,13 +248,24 @@ export default function ArticleList({ onArticleSelect, onNavigate }: ArticleList
 
     setArticles([...articles, article]);
     setNewTitle('');
+    // Set the new article as selected
+    setSelectedArticle(article);
+    onArticleSelect(article);
+    setStorageItem('lastSelectedArticleId', article.id);
+    setStorageItem(LAST_PAGE_KEY, 'articles');
+    onNavigate?.('articles');
   };
 
   const deleteArticle = (id: string) => {
-    removeStorageItem(STORAGE_KEY_PREFIX + id); // Remove the content when deleting article
-    if (id === getStorageItem('lastSelectedArticleId')) {
+    // Remove the content and title when deleting article
+    removeStorageItem(STORAGE_KEY_PREFIX + id);
+    removeStorageItem(STORAGE_KEY_TITLE_PREFIX + id);
+    
+    // If this was the last selected article, clear the lastSelectedArticleId
+    if (id === localStorage.getItem('lastSelectedArticleId')) {
       removeStorageItem('lastSelectedArticleId');
     }
+    
     setArticles(articles.filter(article => article.id !== id));
     if (selectedArticle?.id === id) {
       setSelectedArticle(null);
@@ -212,8 +275,17 @@ export default function ArticleList({ onArticleSelect, onNavigate }: ArticleList
 
   const handleArticleClick = (article: ArticleType) => {
     // Load the latest content before setting the selected article
-    const content = getStorageItem(STORAGE_KEY_PREFIX + article.id) || article.content;
-    const updatedArticle = { ...article, content };
+    const content = localStorage.getItem(STORAGE_KEY_PREFIX + article.id) || article.content;
+    const title = localStorage.getItem(STORAGE_KEY_TITLE_PREFIX + article.id) || article.title;
+    const updatedArticle = { ...article, content, title };
+    
+    // Update the article in the articles list to ensure content is preserved
+    setArticles(prevArticles => 
+      prevArticles.map(a => 
+        a.id === article.id ? updatedArticle : a
+      )
+    );
+    
     setSelectedArticle(updatedArticle);
     onArticleSelect(updatedArticle);
     // Save the selected article ID
@@ -227,9 +299,13 @@ export default function ArticleList({ onArticleSelect, onNavigate }: ArticleList
   const updateContent = (content: string) => {
     if (!selectedArticle) return;
     const updatedArticle = { ...selectedArticle, content };
+    
+    // Update both the articles list and selected article
     setArticles(articles.map(article =>
       article.id === selectedArticle.id ? updatedArticle : article
     ));
+    
+    // Save to localStorage
     setStorageItem(STORAGE_KEY_PREFIX + selectedArticle.id, content);
     setSelectedArticle(updatedArticle);
     onArticleSelect(updatedArticle);
