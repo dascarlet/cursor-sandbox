@@ -10,6 +10,19 @@ interface TodoProps {
   isSelected: boolean;
 }
 
+// Format date to JST timestamp
+const formatJSTDate = (date: Date) => {
+  return new Intl.DateTimeFormat('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).format(date);
+};
+
 export default function Todo({ todo, onDelete, onClick, isSelected }: TodoProps) {
   return (
     <div 
@@ -18,9 +31,12 @@ export default function Todo({ todo, onDelete, onClick, isSelected }: TodoProps)
       } cursor-pointer`}
       onClick={onClick}
     >
-      <div className="flex items-center">
+      <div className="flex flex-col">
         <span className="text-gray-800 text-sm">
           {todo.title}
+        </span>
+        <span className="text-gray-400 text-xs">
+          {formatJSTDate(todo.createdAt)}
         </span>
       </div>
       <button
