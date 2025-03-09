@@ -2,9 +2,13 @@
 
 import { FaMarkdown, FaClock, FaMoon, FaSort, FaLanguage } from 'react-icons/fa';
 import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../i18n/translations';
 
 export default function TopPage() {
   const { t, language, setLanguage } = useLanguage();
+
+  // Get the steps array from translations based on current language
+  const steps = translations[language].topPage.gettingStarted.steps;
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
@@ -49,7 +53,7 @@ export default function TopPage() {
       <div className="bg-blue-50 p-6 rounded-lg">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">{t('topPage.gettingStarted.title')}</h2>
         <ol className="list-decimal list-inside space-y-2 text-gray-600">
-          {t('topPage.gettingStarted.steps').split(',').map((step, index) => (
+          {steps.map((step, index) => (
             <li key={index}>{step}</li>
           ))}
         </ol>
