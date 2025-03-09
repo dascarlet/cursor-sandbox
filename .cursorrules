@@ -1,0 +1,68 @@
+{
+  "rules": {
+    "indent": {
+      "style": "space",
+      "size": 2
+    },
+    "lineWidth": 100,
+    "quotes": "single",
+    "semicolons": true,
+    "trailingComma": "es5",
+    "bracketSpacing": true,
+    "jsxBracketSameLine": false,
+    "arrowParens": "avoid"
+  },
+  "ignore": [
+    "node_modules/**",
+    ".next/**",
+    "build/**",
+    "dist/**",
+    "coverage/**",
+    "*.log",
+    "*.lock",
+    ".git/**"
+  ],
+  "fileTypes": {
+    "typescript": {
+      "extensions": [".ts", ".tsx"],
+      "parser": "typescript"
+    },
+    "javascript": {
+      "extensions": [".js", ".jsx"],
+      "parser": "babel"
+    },
+    "css": {
+      "extensions": [".css"],
+      "parser": "css"
+    }
+  },
+  "formatting": {
+    "organizeImports": true,
+    "removeUnused": true,
+    "formatOnSave": true
+  },
+  "linting": {
+    "recommended": true,
+    "rules": {
+      "no-console": "warn",
+      "no-unused-vars": "warn",
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn"
+    }
+  },
+  "typescript": {
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true
+  },
+  "nextjs": {
+    "strictMode": true,
+    "experimental": {
+      "serverActions": true
+    }
+  },
+  "tailwind": {
+    "purge": true,
+    "darkMode": "media"
+  }
+} 
