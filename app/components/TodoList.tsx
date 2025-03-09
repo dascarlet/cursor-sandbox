@@ -1,12 +1,33 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Todo as TodoType } from '../types/todo';
 import Todo from './Todo';
+
+const STORAGE_KEY = 'todos';
 
 export default function TodoList() {
   const [todos, setTodos] = useState<TodoType[]>([]);
   const [newTodo, setNewTodo] = useState('');
+
+  // Load todos from localStorage on component mount
+  useEffect(() => {
+    const storedTodos = localStorage.getItem(STORAGE_KEY);
+    if (storedTodos) {
+      const parsedTodos = JSON.parse(storedTodos);
+      // Convert stored date strings back to Date objects
+      const todosWithDates = parsedTodos.map((todo: any) => ({
+        ...todo,
+        createdAt: new Date(todo.createdAt)
+      }));
+      setTodos(todosWithDates);
+    }
+  }, []);
+
+  // Save todos to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+  }, [todos]);
 
   const addTodo = (e: React.FormEvent) => {
     e.preventDefault();
