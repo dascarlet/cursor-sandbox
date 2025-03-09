@@ -42,18 +42,11 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
       id: crypto.randomUUID(),
       title: newTitle.trim(),
       content: '',
-      completed: false,
       createdAt: new Date(),
     };
 
     setTodos([...todos, todo]);
     setNewTitle('');
-  };
-
-  const toggleTodo = (id: string) => {
-    setTodos(todos.map(todo =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    ));
   };
 
   const deleteTodo = (id: string) => {
@@ -106,7 +99,6 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
           <Todo
             key={todo.id}
             todo={todo}
-            onToggle={toggleTodo}
             onDelete={deleteTodo}
             onClick={() => handleTodoClick(todo)}
             isSelected={selectedTodo?.id === todo.id}
