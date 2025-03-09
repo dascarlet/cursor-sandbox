@@ -263,6 +263,12 @@ export default function Home() {
                   {isSaving ? 'Saving...' : 'Saved'}
                 </span>
                 <button
+                  onClick={() => navigator.clipboard.writeText(selectedTodo.content)}
+                  className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+                >
+                  Copy Text
+                </button>
+                <button
                   onClick={() => setShowPreview(!showPreview)}
                   className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors"
                 >
