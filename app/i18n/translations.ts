@@ -6,6 +6,7 @@ export const translations = {
       markdownEditor: 'Markdown Editor',
       home: 'Home',
       articles: 'Articles',
+      yourArticles: 'Your Articles',
       darkMode: 'Dark Mode',
       lightMode: 'Light Mode',
       saved: 'Saved',
@@ -21,6 +22,12 @@ export const translations = {
       loading: 'Loading articles...',
       selectArticle: 'Select an article from the sidebar to start editing.',
       addArticleTitle: 'Add a new article title...',
+      deleteArticle: 'Delete article',
+      sortByNewest: 'Sort by newest',
+      sortByOldest: 'Sort by oldest',
+      switchToLightMode: 'Switch to light mode',
+      switchToDarkMode: 'Switch to dark mode',
+      switchLanguage: 'Switch language'
     },
     topPage: {
       welcome: 'Welcome to Markdown Editor',
@@ -60,6 +67,7 @@ export const translations = {
       markdownEditor: 'マークダウン エディター',
       home: 'ホーム',
       articles: '記事一覧',
+      yourArticles: 'あなたの記事',
       darkMode: 'ダークモード',
       lightMode: 'ライトモード',
       saved: '保存済み',
@@ -75,6 +83,12 @@ export const translations = {
       loading: '記事を読み込み中...',
       selectArticle: 'サイドバーから記事を選択して編集を開始してください。',
       addArticleTitle: '新しい記事のタイトルを入力...',
+      deleteArticle: '記事を削除',
+      sortByNewest: '新しい順に並べ替え',
+      sortByOldest: '古い順に並べ替え',
+      switchToLightMode: 'ライトモードに切り替え',
+      switchToDarkMode: 'ダークモードに切り替え',
+      switchLanguage: '言語を切り替え'
     },
     topPage: {
       welcome: 'マークダウン エディターへようこそ',

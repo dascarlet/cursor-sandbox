@@ -2,6 +2,7 @@
 
 import { Todo as TodoType } from '../types/todo';
 import { FaTrash } from 'react-icons/fa';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface TodoProps {
   todo: TodoType;
@@ -25,6 +26,8 @@ const formatJSTDate = (date: Date) => {
 };
 
 export default function Todo({ todo, onDelete, onClick, isSelected }: TodoProps) {
+  const { t } = useLanguage();
+
   return (
     <div 
       className={`flex items-center justify-between p-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow border ${
@@ -46,7 +49,7 @@ export default function Todo({ todo, onDelete, onClick, isSelected }: TodoProps)
           onDelete(todo.id);
         }}
         className="text-red-500 hover:text-red-700 transition-colors cursor-pointer text-sm"
-        aria-label="Delete article"
+        aria-label={t('common.deleteArticle')}
       >
         <FaTrash size={12} />
       </button>

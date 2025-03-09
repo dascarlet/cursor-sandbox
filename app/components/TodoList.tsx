@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Todo as TodoType } from '../types/todo';
 import Todo from './Todo';
 import { FaSortAmountDown, FaSortAmountUp } from 'react-icons/fa';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const STORAGE_KEY = 'todos';
 const STORAGE_KEY_PREFIX = 'todo_content_';
@@ -42,6 +43,7 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
     // Initialize sort order from localStorage or default to 'desc'
     return (getStorageItem(SORT_ORDER_KEY) as 'asc' | 'desc') || 'desc';
   });
+  const { t } = useLanguage();
 
   // Sort todos based on timestamp
   const sortedTodos = [...todos].sort((a, b) => {
@@ -180,11 +182,11 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-gray-800">Articles</h2>
+        <h2 className="text-xl font-semibold text-gray-800">{t('common.articles')}</h2>
         <button
           onClick={toggleSortOrder}
           className="p-2 text-gray-600 hover:text-gray-800 transition-colors"
-          aria-label={sortOrder === 'asc' ? "Sort by newest" : "Sort by oldest"}
+          aria-label={t(sortOrder === 'asc' ? 'common.sortByNewest' : 'common.sortByOldest')}
         >
           {sortOrder === 'asc' ? <FaSortAmountUp size={16} /> : <FaSortAmountDown size={16} />}
         </button>
@@ -196,20 +198,20 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
             type="text"
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
-            placeholder="Add a new article title..."
+            placeholder={t('common.addArticleTitle')}
             className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           />
           <button
             type="submit"
             className="w-full p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer text-sm"
           >
-            Add Article
+            {t('common.addArticle')}
           </button>
         </div>
       </form>
 
       {isLoading ? (
-        <p className="text-center text-gray-500 mt-4 text-sm">Loading articles...</p>
+        <p className="text-center text-gray-500 mt-4 text-sm">{t('common.loading')}</p>
       ) : (
         <>
           <div className="space-y-2">
@@ -225,7 +227,7 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
           </div>
 
           {todos.length === 0 && (
-            <p className="text-center text-gray-500 mt-4 text-sm">No articles yet. Add one above!</p>
+            <p className="text-center text-gray-500 mt-4 text-sm">{t('common.noArticles')}</p>
           )}
         </>
       )}

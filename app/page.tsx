@@ -8,6 +8,7 @@ import rehypeRaw from 'rehype-raw';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import dynamic from 'next/dynamic';
+import { useLanguage } from './contexts/LanguageContext';
 
 // Import Prism theme
 import 'prismjs/themes/prism-tomorrow.min.css';
@@ -141,6 +142,7 @@ export default function Home() {
   const [showEditor, setShowEditor] = useState(true);
   const [showCopyNotification, setShowCopyNotification] = useState(false);
   const [currentPage, setCurrentPage] = useState<'home' | 'articles'>('home');
+  const { t } = useLanguage();
 
   // Load saved content when todo is selected
   useEffect(() => {
@@ -294,7 +296,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center gap-4">
                   <span className={`text-sm ${isSaving ? 'text-blue-500' : 'text-green-500'}`}>
-                    {isSaving ? 'Saving...' : 'Saved'}
+                    {t(isSaving ? 'common.saving' : 'common.saved')}
                   </span>
                   <div className="relative">
                     <button
@@ -305,11 +307,11 @@ export default function Home() {
                       }}
                       className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors"
                     >
-                      Copy Text
+                      {t('common.copyText')}
                     </button>
                     {showCopyNotification && (
                       <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-1 bg-gray-800 text-white text-sm rounded shadow-lg whitespace-nowrap">
-                        Copied to clipboard!
+                        {t('common.copied')}
                       </div>
                     )}
                   </div>
@@ -317,13 +319,13 @@ export default function Home() {
                     onClick={() => setShowEditor(!showEditor)}
                     className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors"
                   >
-                    {showEditor ? 'Hide Editor' : 'Show Editor'}
+                    {t(showEditor ? 'common.hideEditor' : 'common.showEditor')}
                   </button>
                   <button
                     onClick={() => setShowPreview(!showPreview)}
                     className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors"
                   >
-                    {showPreview ? 'Hide Preview' : 'Show Preview'}
+                    {t(showPreview ? 'common.hidePreview' : 'common.showPreview')}
                   </button>
                 </div>
               </div>
@@ -435,8 +437,8 @@ export default function Home() {
             </div>
           ) : (
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">Your Articles</h1>
-              <p className="mt-4 text-gray-600">Select an article from the sidebar to start editing.</p>
+              <h1 className="text-3xl font-bold text-gray-800">{t('common.yourArticles')}</h1>
+              <p className="mt-4 text-gray-600">{t('common.selectArticle')}</p>
             </div>
           )
         )}

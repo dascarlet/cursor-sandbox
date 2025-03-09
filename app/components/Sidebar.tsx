@@ -5,6 +5,7 @@ import TodoList from './TodoList';
 import { Todo as TodoType } from '../types/todo';
 import { FaHome, FaNewspaper, FaSun, FaMoon } from 'react-icons/fa';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface SidebarProps {
   onTodoSelect: (todo: TodoType | null) => void;
@@ -14,15 +15,16 @@ interface SidebarProps {
 
 export default function Sidebar({ onTodoSelect, onNavigate, currentPage }: SidebarProps) {
   const { theme, toggleTheme } = useTheme();
+  const { t } = useLanguage();
 
   return (
     <div className="fixed top-0 left-0 h-screen w-80 bg-white border-r border-gray-200 shadow-lg p-4 overflow-y-auto">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-xl font-bold text-gray-800">Markdown Editor</h1>
+        <h1 className="text-xl font-bold text-gray-800">{t('common.markdownEditor')}</h1>
         <button
           onClick={toggleTheme}
           className="p-2 text-gray-600 hover:text-gray-800 transition-colors rounded-lg hover:bg-gray-100"
-          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          aria-label={t(theme === 'dark' ? 'common.switchToLightMode' : 'common.switchToDarkMode')}
         >
           {theme === 'dark' ? <FaSun size={18} /> : <FaMoon size={18} />}
         </button>
@@ -40,7 +42,7 @@ export default function Sidebar({ onTodoSelect, onNavigate, currentPage }: Sideb
               }`}
             >
               <FaHome />
-              <span>Home</span>
+              <span>{t('common.home')}</span>
             </button>
           </li>
           <li>
@@ -53,7 +55,7 @@ export default function Sidebar({ onTodoSelect, onNavigate, currentPage }: Sideb
               }`}
             >
               <FaNewspaper />
-              <span>Articles</span>
+              <span>{t('common.articles')}</span>
             </button>
           </li>
         </ul>
