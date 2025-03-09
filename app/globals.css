@@ -5,11 +5,15 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --editor-bg: #ffffff;
+  --editor-text: #1f2937;
 }
 
 :root.dark {
   --background: #1a1a1a;
   --foreground: #f3f4f6;
+  --editor-bg: #1f2937;
+  --editor-text: #e5e7eb;
 }
 
 body {
@@ -20,6 +24,12 @@ body {
 .dark body {
   background: var(--background);
   color: var(--foreground);
+}
+
+/* Editor styles */
+.dark textarea {
+  background-color: var(--editor-bg);
+  color: var(--editor-text);
 }
 
 /* Dark mode styles */
@@ -89,7 +99,7 @@ body {
 
 /* Dark mode prose styles */
 .dark .prose {
-  color: #f3f4f6;
+  color: #e5e7eb;
 }
 
 .dark .prose h1,
@@ -106,8 +116,8 @@ body {
 }
 
 .dark .prose code {
-  color: #60a5fa;
-  background-color: #1f1f1f;
+  color: #93c5fd;
+  background-color: #1f2937;
 }
 
 .dark .prose a {
@@ -116,31 +126,31 @@ body {
 
 .dark .prose blockquote {
   color: #d1d5db;
-  border-color: #2d2d2d;
-  background-color: #1f1f1f;
+  border-color: #374151;
+  background-color: #1f2937;
 }
 
 .dark .prose thead {
   color: #f3f4f6;
-  border-color: #2d2d2d;
+  border-color: #374151;
 }
 
 .dark .prose tbody tr {
-  border-color: #2d2d2d;
+  border-color: #374151;
 }
 
 .dark .prose td {
-  color: #f3f4f6;
-  border-color: #2d2d2d;
+  color: #e5e7eb;
+  border-color: #374151;
 }
 
 /* Code block styles */
 .dark .prose pre {
-  background-color: #1f1f1f !important;
+  background-color: #1f2937 !important;
 }
 
 .dark .prose pre code {
-  color: #f3f4f6;
+  color: #e5e7eb;
   background-color: transparent;
 }
 
@@ -151,4 +161,9 @@ body {
 
 .dark .prose ol li::marker {
   color: #9ca3af;
+}
+
+/* Preview container background */
+.dark .bg-white.overflow-y-auto {
+  background-color: #1f2937;
 }
