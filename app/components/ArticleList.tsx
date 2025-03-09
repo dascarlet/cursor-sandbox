@@ -8,6 +8,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 const STORAGE_KEY = 'articles';
 const STORAGE_KEY_PREFIX = 'article_content_';
+const STORAGE_KEY_TITLE_PREFIX = 'article_title_';
 const SORT_ORDER_KEY = 'articles_sort_order';
 
 // Helper function to safely access localStorage
@@ -71,11 +72,13 @@ export default function ArticleList({ onArticleSelect, onNavigate }: ArticleList
         const parsedArticles = JSON.parse(storedArticles);
         // Convert stored date strings back to Date objects and load content
         const articlesWithDates = parsedArticles.map((article: { id: string; title: string; createdAt: string }) => {
-          // Load content for each article
+          // Load content and title for each article
           const content = getStorageItem(STORAGE_KEY_PREFIX + article.id) || '';
+          const title = getStorageItem(STORAGE_KEY_TITLE_PREFIX + article.id) || article.title;
           return {
             ...article,
             content,
+            title,
             createdAt: new Date(article.createdAt)
           };
         });
@@ -99,6 +102,49 @@ export default function ArticleList({ onArticleSelect, onNavigate }: ArticleList
     } finally {
       setIsLoading(false);
     }
+  }, []);
+
+  // Listen for storage changes and custom events
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY) {
+        // Articles list was updated
+        const storedArticles = getStorageItem(STORAGE_KEY);
+        if (storedArticles) {
+          const parsedArticles = JSON.parse(storedArticles);
+          const articlesWithDates = parsedArticles.map((article: { id: string; title: string; createdAt: string }) => {
+            const content = getStorageItem(STORAGE_KEY_PREFIX + article.id) || '';
+            const title = getStorageItem(STORAGE_KEY_TITLE_PREFIX + article.id) || article.title;
+            return {
+              ...article,
+              content,
+              title,
+              createdAt: new Date(article.createdAt)
+            };
+          });
+          setArticles(articlesWithDates);
+        }
+      }
+    };
+
+    const handleTitleUpdate = (e: CustomEvent<{ id: string; title: string }>) => {
+      const { id, title } = e.detail;
+      setArticles(prevArticles => 
+        prevArticles.map(article => 
+          article.id === id 
+            ? { ...article, title }
+            : article
+        )
+      );
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('articleTitleUpdate', handleTitleUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('articleTitleUpdate', handleTitleUpdate as EventListener);
+    };
   }, []);
 
   // Save articles to localStorage whenever they change

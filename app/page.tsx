@@ -341,7 +341,28 @@ export default function Home() {
         ...prev!,
         title: newTitle
       }));
+      
+      // Update the title in localStorage
       localStorage.setItem(STORAGE_KEY_TITLE_PREFIX + selectedArticle.id, newTitle);
+      
+      // Update the articles list in localStorage
+      const storedArticles = localStorage.getItem('articles');
+      if (storedArticles) {
+        const articles = JSON.parse(storedArticles);
+        const updatedArticles = articles.map((article: ArticleType) => 
+          article.id === selectedArticle.id 
+            ? { ...article, title: newTitle }
+            : article
+        );
+        localStorage.setItem('articles', JSON.stringify(updatedArticles));
+      }
+      
+      // Dispatch custom event for real-time sync
+      const event = new CustomEvent('articleTitleUpdate', {
+        detail: { id: selectedArticle.id, title: newTitle }
+      });
+      window.dispatchEvent(event);
+      
       setIsEditingTitle(false);
       setIsSaving(true);
       setTimeout(() => setIsSaving(false), 1000);
