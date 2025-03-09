@@ -1,19 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import TodoList from './TodoList';
-import { Todo as TodoType } from '../types/todo';
+import ArticleList from './ArticleList';
+import { Article as ArticleType } from '../types/article';
 import { FaHome, FaNewspaper, FaSun, FaMoon } from 'react-icons/fa';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface SidebarProps {
-  onTodoSelect: (todo: TodoType | null) => void;
+  onArticleSelect: (article: ArticleType | null) => void;
   onNavigate: (page: 'home' | 'articles') => void;
   currentPage: 'home' | 'articles';
 }
 
-export default function Sidebar({ onTodoSelect, onNavigate, currentPage }: SidebarProps) {
+export default function Sidebar({ onArticleSelect, onNavigate, currentPage }: SidebarProps) {
   const { theme, toggleTheme } = useTheme();
   const { t } = useLanguage();
 
@@ -61,7 +61,7 @@ export default function Sidebar({ onTodoSelect, onNavigate, currentPage }: Sideb
         </ul>
       </nav>
       
-      <TodoList onTodoSelect={onTodoSelect} onNavigate={onNavigate} />
+      <ArticleList onArticleSelect={onArticleSelect} onNavigate={onNavigate} />
     </div>
   );
 } 

@@ -15,13 +15,13 @@ import 'prismjs/themes/prism-tomorrow.min.css';
 
 // Import Sidebar and types
 import Sidebar from './components/Sidebar';
-import { Todo as TodoType } from './types/todo';
+import { Article as ArticleType } from './types/article';
 import TopPage from './components/TopPage';
 
 // Initialize Prism on the client side only
-let Prism: any;
+let prismInstance: any;
 if (typeof window !== 'undefined') {
-  Prism = require('prismjs');
+  prismInstance = require('prismjs');
   require('prismjs/components/prism-javascript');
   require('prismjs/components/prism-typescript');
   require('prismjs/components/prism-jsx');
@@ -112,10 +112,11 @@ Here's a sentence with a footnote[^1].
 `;
 
 // Add storage key constant
-const STORAGE_KEY_PREFIX = 'todo_content_';
+const STORAGE_KEY_PREFIX = 'article_content_';
 
 // Format date to JST timestamp
-const formatJSTDate = (date: Date) => {
+const formatJSTDate = (dateStr: string) => {
+  const date = new Date(dateStr);
   return new Intl.DateTimeFormat('ja-JP', {
     timeZone: 'Asia/Tokyo',
     year: 'numeric',
@@ -136,7 +137,7 @@ function getGridColumns(showEditor: boolean, showPreview: boolean) {
 }
 
 export default function Home() {
-  const [selectedTodo, setSelectedTodo] = useState<TodoType | null>(null);
+  const [selectedArticle, setSelectedArticle] = useState<ArticleType | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
   const [showEditor, setShowEditor] = useState(true);
@@ -144,25 +145,25 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState<'home' | 'articles'>('home');
   const { t } = useLanguage();
 
-  // Load saved content when todo is selected
+  // Load saved content when article is selected
   useEffect(() => {
-    if (selectedTodo?.id) {
-      const savedContent = localStorage.getItem(STORAGE_KEY_PREFIX + selectedTodo.id);
-      if (savedContent && savedContent !== selectedTodo.content) {
-        setSelectedTodo(prev => ({
+    if (selectedArticle?.id) {
+      const savedContent = localStorage.getItem(STORAGE_KEY_PREFIX + selectedArticle.id);
+      if (savedContent && savedContent !== selectedArticle.content) {
+        setSelectedArticle(prev => ({
           ...prev!,
           content: savedContent
         }));
       }
     }
-  }, [selectedTodo?.id]);
+  }, [selectedArticle?.id]);
 
   // Save content to localStorage whenever it changes
   useEffect(() => {
-    if (selectedTodo?.id && selectedTodo?.content !== undefined) {
-      const currentContent = localStorage.getItem(STORAGE_KEY_PREFIX + selectedTodo.id);
-      if (currentContent !== selectedTodo.content) {
-        localStorage.setItem(STORAGE_KEY_PREFIX + selectedTodo.id, selectedTodo.content);
+    if (selectedArticle?.id && selectedArticle?.content !== undefined) {
+      const currentContent = localStorage.getItem(STORAGE_KEY_PREFIX + selectedArticle.id);
+      if (currentContent !== selectedArticle.content) {
+        localStorage.setItem(STORAGE_KEY_PREFIX + selectedArticle.id, selectedArticle.content);
         setIsSaving(true);
         const timer = setTimeout(() => {
           setIsSaving(false);
@@ -170,32 +171,32 @@ export default function Home() {
         return () => clearTimeout(timer);
       }
     }
-  }, [selectedTodo?.content, selectedTodo?.id]);
+  }, [selectedArticle?.content, selectedArticle?.id]);
 
   // Initialize Prism when the component mounts
   useEffect(() => {
-    if (typeof window !== 'undefined' && Prism) {
+    if (typeof window !== 'undefined' && prismInstance) {
       // Initialize Prism
-      Prism.manual = true;
+      prismInstance.manual = true;
       // Highlight all code blocks
       requestAnimationFrame(() => {
         document.querySelectorAll('code[class*="language-"]').forEach((block) => {
-          Prism.highlightElement(block);
+          prismInstance.highlightElement(block);
         });
       });
     }
-  }, []); // Run once on mount
+  }, []);
 
   // Update highlighting when content changes
   useEffect(() => {
-    if (typeof window !== 'undefined' && Prism && selectedTodo?.content) {
+    if (typeof window !== 'undefined' && prismInstance && selectedArticle?.content) {
       requestAnimationFrame(() => {
         document.querySelectorAll('code[class*="language-"]').forEach((block) => {
-          Prism.highlightElement(block);
+          prismInstance.highlightElement(block);
         });
       });
     }
-  }, [selectedTodo?.content]);
+  }, [selectedArticle?.content]);
 
   const handleEditorKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Tab') {
@@ -242,7 +243,7 @@ export default function Home() {
           ...allLines.slice(startLineIndex + lines.length)
         ].join('\n');
 
-        setSelectedTodo({ ...selectedTodo!, content: newValue });
+        setSelectedArticle({ ...selectedArticle!, content: newValue });
         
         // Need to wait for the next tick to set the selection
         setTimeout(() => {
@@ -258,14 +259,14 @@ export default function Home() {
         if (e.shiftKey && line.startsWith('  ')) {
           // Remove 2 spaces if they exist at the start of the line
           const newValue = value.slice(0, lineStart) + line.slice(2) + value.slice(lineEnd === -1 ? value.length : lineEnd);
-          setSelectedTodo({ ...selectedTodo!, content: newValue });
+          setSelectedArticle({ ...selectedArticle!, content: newValue });
           setTimeout(() => {
             target.selectionStart = target.selectionEnd = Math.max(start - 2, lineStart);
           }, 0);
         } else if (!e.shiftKey) {
           // Add 2 spaces at cursor position
           const newValue = value.slice(0, start) + '  ' + value.slice(end);
-          setSelectedTodo({ ...selectedTodo!, content: newValue });
+          setSelectedArticle({ ...selectedArticle!, content: newValue });
           setTimeout(() => {
             target.selectionStart = target.selectionEnd = start + 2;
           }, 0);
@@ -277,7 +278,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar 
-        onTodoSelect={setSelectedTodo} 
+        onArticleSelect={setSelectedArticle} 
         onNavigate={setCurrentPage}
         currentPage={currentPage}
       />
@@ -285,13 +286,13 @@ export default function Home() {
         {currentPage === 'home' ? (
           <TopPage />
         ) : (
-          selectedTodo ? (
+          selectedArticle ? (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-baseline gap-4">
-                  <h1 className="text-3xl font-bold text-gray-800">{selectedTodo.title}</h1>
+                  <h1 className="text-3xl font-bold text-gray-800">{selectedArticle.title}</h1>
                   <span className="text-gray-400 text-sm font-mono">
-                    {formatJSTDate(selectedTodo.createdAt)}
+                    {formatJSTDate(selectedArticle.createdAt.toString())}
                   </span>
                 </div>
                 <div className="flex items-center gap-4">
@@ -301,7 +302,7 @@ export default function Home() {
                   <div className="relative">
                     <button
                       onClick={() => {
-                        navigator.clipboard.writeText(selectedTodo.content);
+                        navigator.clipboard.writeText(selectedArticle.content);
                         setShowCopyNotification(true);
                         setTimeout(() => setShowCopyNotification(false), 2000);
                       }}
@@ -337,99 +338,45 @@ export default function Home() {
                     <textarea
                       className="w-full h-[calc(100vh-14rem)] p-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none font-mono text-sm"
                       placeholder={markdownExample}
-                      value={selectedTodo.content}
-                      onChange={(e) => setSelectedTodo({ ...selectedTodo, content: e.target.value })}
+                      value={selectedArticle.content}
+                      onChange={(e) => setSelectedArticle({ ...selectedArticle, content: e.target.value })}
                       onKeyDown={handleEditorKeyDown}
                     />
                   </div>
                 )}
-                
+
                 {showPreview && (
                   <div className="space-y-2">
                     <h2 className="text-sm font-semibold text-gray-600">Preview</h2>
-                    <div className="w-full h-[calc(100vh-14rem)] border border-gray-200 rounded-lg overflow-y-auto bg-white">
-                      <div className="p-6">
-                        <article className="prose prose-sm max-w-none 
-                          prose-headings:font-bold prose-headings:text-gray-800 prose-headings:mt-8 prose-headings:mb-4
-                          prose-h1:text-4xl prose-h1:font-extrabold prose-h1:border-b prose-h1:border-gray-200 prose-h1:pb-4 prose-h1:mb-6
-                          prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-10 prose-h2:mb-4
-                          prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-8 prose-h3:mb-3
-                          prose-p:my-3 prose-p:text-gray-600
-                          prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
-                          prose-blockquote:border-l-4 prose-blockquote:border-gray-300 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-600
-                          prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:p-4 prose-pre:rounded-lg
-                          prose-code:text-blue-600 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
-                          prose-strong:text-gray-800 prose-strong:font-semibold
-                          prose-img:rounded-lg prose-img:shadow-md
-                          prose-hr:my-8 prose-hr:border-gray-200
-                          prose-ul:my-3 prose-ol:my-3 prose-li:my-1
-                          [&>ul]:list-disc [&>ul]:pl-6 
-                          [&>ol]:list-decimal [&>ol]:pl-6
-                          [&_ul]:list-disc [&_ul]:pl-6 
-                          [&_ol]:list-decimal [&_ol]:pl-6
-                          [&_li]:pl-2
-                          [&_li]:marker:text-gray-400
-                          [&_table]:my-4 [&_table]:w-full [&_table]:border-collapse [&_table]:border [&_table]:border-gray-300
-                          [&_th]:border [&_th]:border-gray-300 [&_th]:bg-gray-100 [&_th]:p-2 [&_th]:text-left
-                          [&_td]:border [&_td]:border-gray-300 [&_td]:p-2
-                          [&_table]:overflow-x-auto [&_table]:block [&_table]:whitespace-nowrap
-                        ">
-                          <ReactMarkdown
-                            remarkPlugins={[remarkGfm, remarkBreaks]}
-                            rehypePlugins={[rehypeRaw, rehypeSlug, rehypeAutolinkHeadings]}
-                            components={{
-                              h1: ({ node, ...props }) => (
-                                <h1 className="text-4xl font-extrabold text-gray-800 border-b border-gray-200 pb-4 mb-6 mt-8" {...props} />
-                              ),
-                              h2: ({ node, ...props }) => (
-                                <h2 className="text-2xl font-bold text-gray-800 mt-10 mb-4" {...props} />
-                              ),
-                              h3: ({ node, ...props }) => (
-                                <h3 className="text-xl font-semibold text-gray-800 mt-8 mb-3" {...props} />
-                              ),
-                              code: ({ className, children, ...props }) => {
-                                const match = /language-(\w+)/.exec(className || '');
-                                const language = match ? match[1] : '';
-                                const isInline = !match;
-                                
-                                if (!isInline && language) {
-                                  return (
-                                    <div className="relative group">
-                                      <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button
-                                          onClick={() => {
-                                            navigator.clipboard.writeText(String(children).replace(/\n$/, ''));
-                                          }}
-                                          className="px-2 py-1 text-xs text-gray-400 hover:text-gray-300 bg-gray-800 rounded"
-                                        >
-                                          Copy
-                                        </button>
-                                      </div>
-                                      <pre className="!p-0 !m-0 overflow-hidden rounded-lg">
-                                        <code className={`language-${language} !bg-[#1d1f21] block p-4 overflow-x-auto`}>
-                                          {children}
-                                        </code>
-                                      </pre>
-                                    </div>
-                                  );
-                                }
-                                
-                                return (
-                                  <code className="px-1.5 py-0.5 text-blue-600 bg-gray-100 rounded" {...props}>
-                                    {children}
+                    <div className="w-full h-[calc(100vh-14rem)] overflow-y-auto border border-gray-200 rounded-lg bg-white">
+                      <article className="prose prose-sm max-w-none p-4">
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm, remarkBreaks]}
+                          rehypePlugins={[rehypeRaw, rehypeSlug, rehypeAutolinkHeadings]}
+                          components={{
+                            code: ({ node, inline, className, children, ...props }) => {
+                              const match = /language-(\w+)/.exec(className || '');
+                              return !inline && match ? (
+                                <pre className={`language-${match[1]}`}>
+                                  <code className={`language-${match[1]}`} {...props}>
+                                    {String(children).replace(/\n$/, '')}
                                   </code>
-                                );
-                              },
-                              pre: ({ children }) => <>{children}</>,
-                              input: ({ type, checked, ...props }) => (
-                                <input type={type} checked={checked} readOnly {...props} />
-                              ),
-                            }}
-                          >
-                            {selectedTodo.content || 'Start writing your article using markdown...'}
-                          </ReactMarkdown>
-                        </article>
-                      </div>
+                                </pre>
+                              ) : (
+                                <code className={className} {...props}>
+                                  {children}
+                                </code>
+                              );
+                            },
+                            pre: ({ children }) => <>{children}</>,
+                            input: ({ type, checked, ...props }) => (
+                              <input type={type} checked={checked} readOnly {...props} />
+                            ),
+                          }}
+                        >
+                          {selectedArticle.content || 'Start writing your article using markdown...'}
+                        </ReactMarkdown>
+                      </article>
                     </div>
                   </div>
                 )}
