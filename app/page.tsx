@@ -299,9 +299,6 @@ export default function Home() {
                         prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:p-4 prose-pre:rounded-lg
                         prose-code:text-blue-600 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
                         prose-strong:text-gray-800 prose-strong:font-semibold
-                        prose-table:border-collapse
-                        prose-th:border prose-th:border-gray-300 prose-th:bg-gray-100 prose-th:p-2
-                        prose-td:border prose-td:border-gray-300 prose-td:p-2
                         prose-img:rounded-lg prose-img:shadow-md
                         prose-hr:my-8 prose-hr:border-gray-200
                         prose-ul:my-3 prose-ol:my-3 prose-li:my-1
@@ -311,6 +308,10 @@ export default function Home() {
                         [&_ol]:list-decimal [&_ol]:pl-6
                         [&_li]:pl-2
                         [&_li]:marker:text-gray-400
+                        [&_table]:my-4 [&_table]:w-full [&_table]:border-collapse [&_table]:border [&_table]:border-gray-300
+                        [&_th]:border [&_th]:border-gray-300 [&_th]:bg-gray-100 [&_th]:p-2 [&_th]:text-left
+                        [&_td]:border [&_td]:border-gray-300 [&_td]:p-2
+                        [&_table]:overflow-x-auto [&_table]:block [&_table]:whitespace-nowrap
                       ">
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm, remarkBreaks]}
