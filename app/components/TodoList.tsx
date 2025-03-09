@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Todo as TodoType } from '../types/todo';
 import Todo from './Todo';
+import { FaSortAmountDown, FaSortAmountUp } from 'react-icons/fa';
 
 const STORAGE_KEY = 'todos';
 const STORAGE_KEY_PREFIX = 'todo_content_';
@@ -16,6 +17,18 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
   const [newTitle, setNewTitle] = useState('');
   const [selectedTodo, setSelectedTodo] = useState<TodoType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc'); // Default to newest first
+
+  // Sort todos based on timestamp
+  const sortedTodos = [...todos].sort((a, b) => {
+    const comparison = a.createdAt.getTime() - b.createdAt.getTime();
+    return sortOrder === 'asc' ? comparison : -comparison;
+  });
+
+  // Toggle sort order
+  const toggleSortOrder = () => {
+    setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+  };
 
   // Load todos from localStorage on component mount
   useEffect(() => {
@@ -136,7 +149,16 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-4 text-gray-800">Articles</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold text-gray-800">Articles</h2>
+        <button
+          onClick={toggleSortOrder}
+          className="p-2 text-gray-600 hover:text-gray-800 transition-colors"
+          aria-label={sortOrder === 'asc' ? "Sort by newest" : "Sort by oldest"}
+        >
+          {sortOrder === 'asc' ? <FaSortAmountUp size={16} /> : <FaSortAmountDown size={16} />}
+        </button>
+      </div>
       
       <form onSubmit={addTodo} className="mb-4">
         <div className="flex flex-col gap-2">
@@ -161,7 +183,7 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
       ) : (
         <>
           <div className="space-y-2">
-            {todos.map(todo => (
+            {sortedTodos.map(todo => (
               <Todo
                 key={todo.id}
                 todo={todo}
