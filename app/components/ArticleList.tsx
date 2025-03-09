@@ -185,10 +185,28 @@ export default function ArticleList({ onArticleSelect, onNavigate }: ArticleList
       }
     };
 
+    const handleTitleUpdate = (e: CustomEvent<{ id: string; title: string }>) => {
+      const { id, title } = e.detail;
+      setArticles(prevArticles => 
+        prevArticles.map(article => 
+          article.id === id 
+            ? { ...article, title }
+            : article
+        )
+      );
+      if (selectedArticle?.id === id) {
+        const updatedArticle = selectedArticle ? { ...selectedArticle, title } : null;
+        setSelectedArticle(updatedArticle);
+        onArticleSelect(updatedArticle);
+      }
+    };
+
     window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('articleTitleUpdate', handleTitleUpdate as EventListener);
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('articleTitleUpdate', handleTitleUpdate as EventListener);
     };
   }, [selectedArticle]);
 
