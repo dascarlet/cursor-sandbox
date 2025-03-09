@@ -49,7 +49,7 @@ export default function Article({ article, onDelete, onClick, isSelected }: Arti
           e.stopPropagation();
           onDelete(article.id);
         }}
-        className="text-red-500 hover:text-red-700 transition-colors cursor-pointer text-sm"
+        className="text-gray-500 hover:text-gray-700 transition-colors cursor-pointer text-sm"
         aria-label={t('common.deleteArticle')}
       >
         <FaTrash size={12} />
