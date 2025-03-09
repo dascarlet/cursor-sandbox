@@ -73,12 +73,15 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 - `app/page.tsx` - Main editor component with markdown preview / マークダウンプレビュー付きのメインエディターコンポーネント
 - `app/components/` - React components / Reactコンポーネント
-  - `TodoList.tsx` - Article list management and persistence / 記事リストの管理と永続化
-  - `Todo.tsx` - Individual article component / 個別記事のコンポーネント
+  - `ArticleList.tsx` - Article list management and persistence / 記事リストの管理と永続化
+  - `Article.tsx` - Individual article component / 個別記事のコンポーネント
   - `Sidebar.tsx` - Navigation sidebar / ナビゲーションサイドバー
 - `app/types/` - TypeScript type definitions / TypeScript型定義
+  - `article.ts` - Article type definitions / 記事の型定義
 - `app/i18n/` - Internationalization files / 国際化ファイル
 - `app/contexts/` - React contexts / Reactコンテキスト
+  - `LanguageContext.tsx` - Language switching context / 言語切り替えコンテキスト
+  - `ThemeContext.tsx` - Theme switching context / テーマ切り替えコンテキスト
 
 ## Technologies Used / 使用技術
 
