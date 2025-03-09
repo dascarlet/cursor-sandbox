@@ -59,8 +59,8 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
 
   // Save todos to localStorage whenever they change
   useEffect(() => {
-    if (todos.length > 0) { // Only save if there are todos
-      try {
+    try {
+      if (todos.length > 0) {
         // Save the todos list without content to avoid duplication
         const todosForStorage = todos.map(todo => ({
           id: todo.id,
@@ -69,9 +69,20 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
           content: '' // Don't store content here as it's stored separately
         }));
         localStorage.setItem(STORAGE_KEY, JSON.stringify(todosForStorage));
-      } catch (error) {
-        console.error('Error saving todos:', error);
+      } else {
+        // Clear all storage when no todos remain
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem('lastSelectedTodoId');
+        // Clear all content items
+        const allKeys = Object.keys(localStorage);
+        allKeys.forEach(key => {
+          if (key.startsWith(STORAGE_KEY_PREFIX)) {
+            localStorage.removeItem(key);
+          }
+        });
       }
+    } catch (error) {
+      console.error('Error saving todos:', error);
     }
   }, [todos]);
 
