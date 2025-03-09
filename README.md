@@ -7,10 +7,22 @@ A modern markdown editor built with Next.js that supports syntax highlighting an
 - Create and manage multiple articles
 - Real-time markdown preview
 - Syntax highlighting for code blocks using Prism.js
-- Local storage persistence for article content
-- Clean and modern UI with Tailwind CSS
-- Responsive sidebar navigation
-- Dark theme support for code blocks (Tomorrow Night theme)
+- Complete local storage persistence
+  - Article content and metadata
+  - Last selected article restoration
+  - Automatic content saving
+  - Clean removal of deleted articles
+- Modern UI features
+  - Clean and responsive design with Tailwind CSS
+  - Loading states and indicators
+  - Copy to clipboard functionality
+  - Save status indicators
+  - Dark theme for code blocks (Tomorrow Night theme)
+- Code editing features
+  - Tab indentation support
+  - Multi-line indentation
+  - Syntax highlighting for multiple languages
+  - Code block copy buttons
 
 ## Getting Started
 
@@ -32,7 +44,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 - `app/page.tsx` - Main editor component with markdown preview
 - `app/components/` - React components
-  - `TodoList.tsx` - Article list management
+  - `TodoList.tsx` - Article list management and persistence
   - `Todo.tsx` - Individual article component
   - `Sidebar.tsx` - Navigation sidebar
 - `app/types/` - TypeScript type definitions
@@ -44,6 +56,28 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [Prism.js](https://prismjs.com) - Syntax highlighting
 - [Tailwind CSS](https://tailwindcss.com) - Styling
 - [TypeScript](https://www.typescriptlang.org) - Type safety
+
+## Features in Detail
+
+### Persistence
+- Articles and their content are automatically saved to localStorage
+- Content is saved separately for each article to optimize performance
+- Last selected article is remembered across page reloads
+- Complete cleanup when articles are deleted
+
+### Editor Features
+- Real-time markdown preview
+- Support for GitHub Flavored Markdown
+- Code block syntax highlighting for multiple languages
+- Tab indentation support for both single and multiple lines
+- Copy to clipboard functionality for both articles and code blocks
+
+### UI/UX Features
+- Loading states during article retrieval
+- Save status indicators
+- Clean and responsive sidebar navigation
+- Dark theme support for code blocks
+- Modern and intuitive interface
 
 ## Learn More
 
