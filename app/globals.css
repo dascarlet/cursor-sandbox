@@ -99,7 +99,7 @@ body {
 
 /* Dark mode prose styles */
 .dark .prose {
-  color: #e5e7eb;
+  color: #ffffff;
 }
 
 .dark .prose h1,
@@ -108,11 +108,11 @@ body {
 .dark .prose h4,
 .dark .prose h5,
 .dark .prose h6 {
-  color: #f3f4f6;
+  color: #ffffff;
 }
 
 .dark .prose strong {
-  color: #f3f4f6;
+  color: #ffffff;
 }
 
 .dark .prose code {
@@ -125,13 +125,13 @@ body {
 }
 
 .dark .prose blockquote {
-  color: #d1d5db;
+  color: #e2e8f0;
   border-color: #374151;
   background-color: #1f2937;
 }
 
 .dark .prose thead {
-  color: #f3f4f6;
+  color: #ffffff;
   border-color: #374151;
 }
 
@@ -140,8 +140,17 @@ body {
 }
 
 .dark .prose td {
-  color: #e5e7eb;
+  color: #ffffff;
   border-color: #374151;
+}
+
+.dark .prose p {
+  color: #ffffff;
+}
+
+.dark .prose ul,
+.dark .prose ol {
+  color: #ffffff;
 }
 
 /* Code block styles */
@@ -150,17 +159,17 @@ body {
 }
 
 .dark .prose pre code {
-  color: #e5e7eb;
+  color: #ffffff;
   background-color: transparent;
 }
 
 /* List markers */
 .dark .prose ul li::marker {
-  color: #9ca3af;
+  color: #d1d5db;
 }
 
 .dark .prose ol li::marker {
-  color: #9ca3af;
+  color: #d1d5db;
 }
 
 /* Preview container background */
