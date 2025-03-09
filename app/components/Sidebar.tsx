@@ -61,7 +61,7 @@ export default function Sidebar({ onTodoSelect, onNavigate, currentPage }: Sideb
         </ul>
       </nav>
       
-      {currentPage === 'articles' && <TodoList onTodoSelect={onTodoSelect} />}
+      <TodoList onTodoSelect={onTodoSelect} />
     </div>
   );
 } 
