@@ -1,9 +1,8 @@
 # Markdown Editor with Next.js
-# Next.js製マークダウンエディター
 
-A modern markdown editor built with Next.js that supports syntax highlighting and local storage persistence. The application allows you to create, edit, and manage multiple articles with a clean and intuitive interface.
+A modern markdown editor built with Next.js that supports syntax highlighting and local storage persistence.
 
-Next.jsで構築された最新のマークダウンエディターです。シンタックスハイライトとローカルストレージの永続化をサポートしています。クリーンで直感的なインターフェースで、複数の記事の作成、編集、管理が可能です。
+[English](README.en.md) | [日本語](README.ja.md)
 
 ## Features / 機能
 
