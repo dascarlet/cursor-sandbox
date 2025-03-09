@@ -126,10 +126,18 @@ const formatJSTDate = (date: Date) => {
   }).format(date);
 };
 
+// Helper function to determine grid columns based on visibility
+function getGridColumns(showEditor: boolean, showPreview: boolean) {
+  if (showEditor && showPreview) return 'grid-cols-2';
+  if (showEditor || showPreview) return 'grid-cols-1';
+  return '';
+}
+
 export default function Home() {
   const [selectedTodo, setSelectedTodo] = useState<TodoType | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
+  const [showEditor, setShowEditor] = useState(true);
   const [showCopyNotification, setShowCopyNotification] = useState(false);
 
   // Load saved content when todo is selected
@@ -297,6 +305,12 @@ export default function Home() {
                   )}
                 </div>
                 <button
+                  onClick={() => setShowEditor(!showEditor)}
+                  className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+                >
+                  {showEditor ? 'Hide Editor' : 'Show Editor'}
+                </button>
+                <button
                   onClick={() => setShowPreview(!showPreview)}
                   className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors"
                 >
@@ -305,17 +319,19 @@ export default function Home() {
               </div>
             </div>
 
-            <div className={`grid gap-6 ${showPreview ? 'grid-cols-2' : 'grid-cols-1'}`}>
-              <div className="space-y-2">
-                <h2 className="text-sm font-semibold text-gray-600">Editor</h2>
-                <textarea
-                  className="w-full h-[calc(100vh-14rem)] p-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none font-mono text-sm"
-                  placeholder={markdownExample}
-                  value={selectedTodo.content}
-                  onChange={(e) => setSelectedTodo({ ...selectedTodo, content: e.target.value })}
-                  onKeyDown={handleEditorKeyDown}
-                />
-              </div>
+            <div className={`grid gap-6 ${getGridColumns(showEditor, showPreview)}`}>
+              {showEditor && (
+                <div className="space-y-2">
+                  <h2 className="text-sm font-semibold text-gray-600">Editor</h2>
+                  <textarea
+                    className="w-full h-[calc(100vh-14rem)] p-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none font-mono text-sm"
+                    placeholder={markdownExample}
+                    value={selectedTodo.content}
+                    onChange={(e) => setSelectedTodo({ ...selectedTodo, content: e.target.value })}
+                    onKeyDown={handleEditorKeyDown}
+                  />
+                </div>
+              )}
               
               {showPreview && (
                 <div className="space-y-2">
