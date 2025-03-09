@@ -9,6 +9,26 @@ const STORAGE_KEY = 'todos';
 const STORAGE_KEY_PREFIX = 'todo_content_';
 const SORT_ORDER_KEY = 'todos_sort_order';
 
+// Helper function to safely access localStorage
+const getStorageItem = (key: string) => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem(key);
+  }
+  return null;
+};
+
+const setStorageItem = (key: string, value: string) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(key, value);
+  }
+};
+
+const removeStorageItem = (key: string) => {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(key);
+  }
+};
+
 interface TodoListProps {
   onTodoSelect: (todo: TodoType | null) => void;
 }
@@ -20,7 +40,7 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(() => {
     // Initialize sort order from localStorage or default to 'desc'
-    return (localStorage.getItem(SORT_ORDER_KEY) as 'asc' | 'desc') || 'desc';
+    return (getStorageItem(SORT_ORDER_KEY) as 'asc' | 'desc') || 'desc';
   });
 
   // Sort todos based on timestamp
@@ -33,7 +53,7 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
   const toggleSortOrder = () => {
     setSortOrder(prev => {
       const newOrder = prev === 'asc' ? 'desc' : 'asc';
-      localStorage.setItem(SORT_ORDER_KEY, newOrder);
+      setStorageItem(SORT_ORDER_KEY, newOrder);
       return newOrder;
     });
   };
@@ -43,13 +63,13 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
     setIsLoading(true);
     try {
       // Load todos list
-      const storedTodos = localStorage.getItem(STORAGE_KEY);
+      const storedTodos = getStorageItem(STORAGE_KEY);
       if (storedTodos) {
         const parsedTodos = JSON.parse(storedTodos);
         // Convert stored date strings back to Date objects and load content
         const todosWithDates = parsedTodos.map((todo: { id: string; title: string; createdAt: string }) => {
           // Load content for each todo
-          const content = localStorage.getItem(STORAGE_KEY_PREFIX + todo.id) || '';
+          const content = getStorageItem(STORAGE_KEY_PREFIX + todo.id) || '';
           return {
             ...todo,
             content,
@@ -61,7 +81,7 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
         setTodos(todosWithDates);
 
         // Then try to restore the selected todo
-        const lastSelectedId = localStorage.getItem('lastSelectedTodoId');
+        const lastSelectedId = getStorageItem('lastSelectedTodoId');
         if (lastSelectedId) {
           const lastSelected = todosWithDates.find((todo: TodoType) => todo.id === lastSelectedId);
           if (lastSelected) {
@@ -72,7 +92,7 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
       }
     } catch (error) {
       console.error('Error loading todos:', error);
-      localStorage.removeItem(STORAGE_KEY);
+      removeStorageItem(STORAGE_KEY);
     } finally {
       setIsLoading(false);
     }
@@ -89,18 +109,20 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
           createdAt: todo.createdAt,
           content: '' // Don't store content here as it's stored separately
         }));
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(todosForStorage));
+        setStorageItem(STORAGE_KEY, JSON.stringify(todosForStorage));
       } else {
         // Clear all storage when no todos remain
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem('lastSelectedTodoId');
+        removeStorageItem(STORAGE_KEY);
+        removeStorageItem('lastSelectedTodoId');
         // Clear all content items
-        const allKeys = Object.keys(localStorage);
-        allKeys.forEach(key => {
-          if (key.startsWith(STORAGE_KEY_PREFIX)) {
-            localStorage.removeItem(key);
-          }
-        });
+        if (typeof window !== 'undefined') {
+          const allKeys = Object.keys(localStorage);
+          allKeys.forEach(key => {
+            if (key.startsWith(STORAGE_KEY_PREFIX)) {
+              removeStorageItem(key);
+            }
+          });
+        }
       }
     } catch (error) {
       console.error('Error saving todos:', error);
@@ -123,9 +145,9 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
   };
 
   const deleteTodo = (id: string) => {
-    localStorage.removeItem(STORAGE_KEY_PREFIX + id); // Remove the content when deleting todo
-    if (id === localStorage.getItem('lastSelectedTodoId')) {
-      localStorage.removeItem('lastSelectedTodoId');
+    removeStorageItem(STORAGE_KEY_PREFIX + id); // Remove the content when deleting todo
+    if (id === getStorageItem('lastSelectedTodoId')) {
+      removeStorageItem('lastSelectedTodoId');
     }
     setTodos(todos.filter(todo => todo.id !== id));
     if (selectedTodo?.id === id) {
@@ -136,12 +158,12 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
 
   const handleTodoClick = (todo: TodoType) => {
     // Load the latest content before setting the selected todo
-    const content = localStorage.getItem(STORAGE_KEY_PREFIX + todo.id) || todo.content;
+    const content = getStorageItem(STORAGE_KEY_PREFIX + todo.id) || todo.content;
     const updatedTodo = { ...todo, content };
     setSelectedTodo(updatedTodo);
     onTodoSelect(updatedTodo);
     // Save the selected todo ID
-    localStorage.setItem('lastSelectedTodoId', todo.id);
+    setStorageItem('lastSelectedTodoId', todo.id);
   };
 
   const updateContent = (content: string) => {
@@ -150,7 +172,7 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
     setTodos(todos.map(todo =>
       todo.id === selectedTodo.id ? updatedTodo : todo
     ));
-    localStorage.setItem(STORAGE_KEY_PREFIX + selectedTodo.id, content);
+    setStorageItem(STORAGE_KEY_PREFIX + selectedTodo.id, content);
     setSelectedTodo(updatedTodo);
     onTodoSelect(updatedTodo);
   };
