@@ -1,4 +1,16 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Markdown Editor with Next.js
+
+A modern markdown editor built with Next.js that supports syntax highlighting and local storage persistence. The application allows you to create, edit, and manage multiple articles with a clean and intuitive interface.
+
+## Features
+
+- Create and manage multiple articles
+- Real-time markdown preview
+- Syntax highlighting for code blocks using Prism.js
+- Local storage persistence for article content
+- Clean and modern UI with Tailwind CSS
+- Responsive sidebar navigation
+- Dark theme support for code blocks (Tomorrow Night theme)
 
 ## Getting Started
 
@@ -16,9 +28,22 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `app/page.tsx` - Main editor component with markdown preview
+- `app/components/` - React components
+  - `TodoList.tsx` - Article list management
+  - `Todo.tsx` - Individual article component
+  - `Sidebar.tsx` - Navigation sidebar
+- `app/types/` - TypeScript type definitions
+
+## Technologies Used
+
+- [Next.js](https://nextjs.org) - React framework
+- [React Markdown](https://github.com/remarkjs/react-markdown) - Markdown rendering
+- [Prism.js](https://prismjs.com) - Syntax highlighting
+- [Tailwind CSS](https://tailwindcss.com) - Styling
+- [TypeScript](https://www.typescriptlang.org) - Type safety
 
 ## Learn More
 
@@ -26,8 +51,6 @@ To learn more about Next.js, take a look at the following resources:
 
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
 ## Deploy on Vercel
 
