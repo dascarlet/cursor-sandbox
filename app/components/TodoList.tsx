@@ -7,6 +7,7 @@ import { FaSortAmountDown, FaSortAmountUp } from 'react-icons/fa';
 
 const STORAGE_KEY = 'todos';
 const STORAGE_KEY_PREFIX = 'todo_content_';
+const SORT_ORDER_KEY = 'todos_sort_order';
 
 interface TodoListProps {
   onTodoSelect: (todo: TodoType | null) => void;
@@ -17,7 +18,10 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
   const [newTitle, setNewTitle] = useState('');
   const [selectedTodo, setSelectedTodo] = useState<TodoType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc'); // Default to newest first
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(() => {
+    // Initialize sort order from localStorage or default to 'desc'
+    return (localStorage.getItem(SORT_ORDER_KEY) as 'asc' | 'desc') || 'desc';
+  });
 
   // Sort todos based on timestamp
   const sortedTodos = [...todos].sort((a, b) => {
@@ -25,9 +29,13 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
     return sortOrder === 'asc' ? comparison : -comparison;
   });
 
-  // Toggle sort order
+  // Toggle sort order and save to localStorage
   const toggleSortOrder = () => {
-    setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+    setSortOrder(prev => {
+      const newOrder = prev === 'asc' ? 'desc' : 'asc';
+      localStorage.setItem(SORT_ORDER_KEY, newOrder);
+      return newOrder;
+    });
   };
 
   // Load todos from localStorage on component mount
