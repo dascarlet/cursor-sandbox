@@ -112,6 +112,20 @@ Here's a sentence with a footnote[^1].
 // Add storage key constant
 const STORAGE_KEY_PREFIX = 'todo_content_';
 
+// Format date to JST timestamp
+const formatJSTDate = (date: Date) => {
+  return new Intl.DateTimeFormat('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).format(date);
+};
+
 export default function Home() {
   const [selectedTodo, setSelectedTodo] = useState<TodoType | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -255,7 +269,12 @@ export default function Home() {
         {selectedTodo ? (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h1 className="text-3xl font-bold text-gray-800">{selectedTodo.title}</h1>
+              <div className="flex items-baseline gap-4">
+                <h1 className="text-3xl font-bold text-gray-800">{selectedTodo.title}</h1>
+                <span className="text-gray-400 text-sm font-mono">
+                  {formatJSTDate(selectedTodo.createdAt)}
+                </span>
+              </div>
               <div className="flex items-center gap-4">
                 <span className={`text-sm ${isSaving ? 'text-blue-500' : 'text-green-500'}`}>
                   {isSaving ? 'Saving...' : 'Saved'}
