@@ -7,8 +7,38 @@ import remarkBreaks from 'remark-breaks';
 import rehypeRaw from 'rehype-raw';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import dynamic from 'next/dynamic';
+
+// Import Prism theme
+import 'prismjs/themes/prism-tomorrow.min.css';
+
+// Import Sidebar and types
 import Sidebar from './components/Sidebar';
 import { Todo as TodoType } from './types/todo';
+
+// Initialize Prism on the client side only
+let Prism: any;
+if (typeof window !== 'undefined') {
+  Prism = require('prismjs');
+  require('prismjs/components/prism-javascript');
+  require('prismjs/components/prism-typescript');
+  require('prismjs/components/prism-jsx');
+  require('prismjs/components/prism-tsx');
+  require('prismjs/components/prism-css');
+  require('prismjs/components/prism-python');
+  require('prismjs/components/prism-java');
+  require('prismjs/components/prism-c');
+  require('prismjs/components/prism-cpp');
+  require('prismjs/components/prism-ruby');
+  require('prismjs/components/prism-rust');
+  require('prismjs/components/prism-go');
+  require('prismjs/components/prism-bash');
+  require('prismjs/components/prism-json');
+  require('prismjs/components/prism-yaml');
+  require('prismjs/components/prism-markdown');
+  require('prismjs/components/prism-sql');
+  require('prismjs/components/prism-php');
+}
 
 const markdownExample = `# Markdown Example
 
@@ -92,6 +122,31 @@ export default function Home() {
         setIsSaving(false);
       }, 1000);
       return () => clearTimeout(timer);
+    }
+  }, [selectedTodo?.content]);
+
+  // Initialize Prism when the component mounts
+  useEffect(() => {
+    if (typeof window !== 'undefined' && Prism) {
+      // Initialize Prism
+      Prism.manual = true;
+      // Highlight all code blocks
+      requestAnimationFrame(() => {
+        document.querySelectorAll('code[class*="language-"]').forEach((block) => {
+          Prism.highlightElement(block);
+        });
+      });
+    }
+  }, []); // Run once on mount
+
+  // Update highlighting when content changes
+  useEffect(() => {
+    if (typeof window !== 'undefined' && Prism && selectedTodo?.content) {
+      requestAnimationFrame(() => {
+        document.querySelectorAll('code[class*="language-"]').forEach((block) => {
+          Prism.highlightElement(block);
+        });
+      });
     }
   }, [selectedTodo?.content]);
 
@@ -247,6 +302,40 @@ export default function Home() {
                             h3: ({ node, ...props }) => (
                               <h3 className="text-xl font-semibold text-gray-800 mt-8 mb-3" {...props} />
                             ),
+                            code: ({ className, children, ...props }) => {
+                              const match = /language-(\w+)/.exec(className || '');
+                              const language = match ? match[1] : '';
+                              const isInline = !match;
+                              
+                              if (!isInline && language) {
+                                return (
+                                  <div className="relative group">
+                                    <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <button
+                                        onClick={() => {
+                                          navigator.clipboard.writeText(String(children).replace(/\n$/, ''));
+                                        }}
+                                        className="px-2 py-1 text-xs text-gray-400 hover:text-gray-300 bg-gray-800 rounded"
+                                      >
+                                        Copy
+                                      </button>
+                                    </div>
+                                    <pre className="!p-0 !m-0 overflow-hidden rounded-lg">
+                                      <code className={`language-${language} !bg-[#1d1f21] block p-4 overflow-x-auto`}>
+                                        {children}
+                                      </code>
+                                    </pre>
+                                  </div>
+                                );
+                              }
+                              
+                              return (
+                                <code className="px-1.5 py-0.5 text-blue-600 bg-gray-100 rounded" {...props}>
+                                  {children}
+                                </code>
+                              );
+                            },
+                            pre: ({ children }) => <>{children}</>,
                             input: ({ type, checked, ...props }) => (
                               <input type={type} checked={checked} readOnly {...props} />
                             ),
