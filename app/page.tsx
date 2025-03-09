@@ -110,7 +110,7 @@ Here's a sentence with a footnote[^1].
 `;
 
 // Add storage key constant
-const STORAGE_KEY_PREFIX = 'article_content_';
+const STORAGE_KEY_PREFIX = 'todo_content_';
 
 export default function Home() {
   const [selectedTodo, setSelectedTodo] = useState<TodoType | null>(null);
@@ -120,9 +120,9 @@ export default function Home() {
 
   // Load saved content when todo is selected
   useEffect(() => {
-    if (selectedTodo) {
+    if (selectedTodo?.id) {
       const savedContent = localStorage.getItem(STORAGE_KEY_PREFIX + selectedTodo.id);
-      if (savedContent) {
+      if (savedContent && savedContent !== selectedTodo.content) {
         setSelectedTodo(prev => ({
           ...prev!,
           content: savedContent
@@ -133,21 +133,18 @@ export default function Home() {
 
   // Save content to localStorage whenever it changes
   useEffect(() => {
-    if (selectedTodo?.id && selectedTodo?.content) {
-      localStorage.setItem(STORAGE_KEY_PREFIX + selectedTodo.id, selectedTodo.content);
+    if (selectedTodo?.id && selectedTodo?.content !== undefined) {
+      const currentContent = localStorage.getItem(STORAGE_KEY_PREFIX + selectedTodo.id);
+      if (currentContent !== selectedTodo.content) {
+        localStorage.setItem(STORAGE_KEY_PREFIX + selectedTodo.id, selectedTodo.content);
+        setIsSaving(true);
+        const timer = setTimeout(() => {
+          setIsSaving(false);
+        }, 1000);
+        return () => clearTimeout(timer);
+      }
     }
   }, [selectedTodo?.content, selectedTodo?.id]);
-
-  // Debounced save indicator
-  useEffect(() => {
-    if (selectedTodo) {
-      setIsSaving(true);
-      const timer = setTimeout(() => {
-        setIsSaving(false);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [selectedTodo?.content]);
 
   // Initialize Prism when the component mounts
   useEffect(() => {
