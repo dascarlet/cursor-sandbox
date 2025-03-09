@@ -6,9 +6,14 @@ import Todo from './Todo';
 
 const STORAGE_KEY = 'todos';
 
-export default function TodoList() {
+interface TodoListProps {
+  onTodoSelect: (todo: TodoType | null) => void;
+}
+
+export default function TodoList({ onTodoSelect }: TodoListProps) {
   const [todos, setTodos] = useState<TodoType[]>([]);
-  const [newTodo, setNewTodo] = useState('');
+  const [newTitle, setNewTitle] = useState('');
+  const [selectedTodo, setSelectedTodo] = useState<TodoType | null>(null);
 
   // Load todos from localStorage on component mount
   useEffect(() => {
@@ -31,17 +36,18 @@ export default function TodoList() {
 
   const addTodo = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTodo.trim()) return;
+    if (!newTitle.trim()) return;
 
     const todo: TodoType = {
       id: crypto.randomUUID(),
-      text: newTodo.trim(),
+      title: newTitle.trim(),
+      content: '',
       completed: false,
       createdAt: new Date(),
     };
 
     setTodos([...todos, todo]);
-    setNewTodo('');
+    setNewTitle('');
   };
 
   const toggleTodo = (id: string) => {
@@ -52,26 +58,45 @@ export default function TodoList() {
 
   const deleteTodo = (id: string) => {
     setTodos(todos.filter(todo => todo.id !== id));
+    if (selectedTodo?.id === id) {
+      setSelectedTodo(null);
+      onTodoSelect(null);
+    }
+  };
+
+  const handleTodoClick = (todo: TodoType) => {
+    setSelectedTodo(todo);
+    onTodoSelect(todo);
+  };
+
+  const updateContent = (content: string) => {
+    if (!selectedTodo) return;
+    const updatedTodo = { ...selectedTodo, content };
+    setTodos(todos.map(todo =>
+      todo.id === selectedTodo.id ? updatedTodo : todo
+    ));
+    setSelectedTodo(updatedTodo);
+    onTodoSelect(updatedTodo);
   };
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-4 text-gray-800">Todo List</h2>
+      <h2 className="text-xl font-semibold mb-4 text-gray-800">Articles</h2>
       
       <form onSubmit={addTodo} className="mb-4">
         <div className="flex flex-col gap-2">
           <input
             type="text"
-            value={newTodo}
-            onChange={(e) => setNewTodo(e.target.value)}
-            placeholder="Add a new todo..."
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            placeholder="Add a new article title..."
             className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           />
           <button
             type="submit"
             className="w-full p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer text-sm"
           >
-            Add Todo
+            Add Article
           </button>
         </div>
       </form>
@@ -83,12 +108,14 @@ export default function TodoList() {
             todo={todo}
             onToggle={toggleTodo}
             onDelete={deleteTodo}
+            onClick={() => handleTodoClick(todo)}
+            isSelected={selectedTodo?.id === todo.id}
           />
         ))}
       </div>
 
       {todos.length === 0 && (
-        <p className="text-center text-gray-500 mt-4 text-sm">No todos yet. Add one above!</p>
+        <p className="text-center text-gray-500 mt-4 text-sm">No articles yet. Add one above!</p>
       )}
     </div>
   );
