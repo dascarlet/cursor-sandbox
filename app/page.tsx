@@ -116,6 +116,7 @@ export default function Home() {
   const [selectedTodo, setSelectedTodo] = useState<TodoType | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
+  const [showCopyNotification, setShowCopyNotification] = useState(false);
 
   // Load saved content when todo is selected
   useEffect(() => {
@@ -262,12 +263,23 @@ export default function Home() {
                 <span className={`text-sm ${isSaving ? 'text-blue-500' : 'text-green-500'}`}>
                   {isSaving ? 'Saving...' : 'Saved'}
                 </span>
-                <button
-                  onClick={() => navigator.clipboard.writeText(selectedTodo.content)}
-                  className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors"
-                >
-                  Copy Text
-                </button>
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(selectedTodo.content);
+                      setShowCopyNotification(true);
+                      setTimeout(() => setShowCopyNotification(false), 2000);
+                    }}
+                    className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+                  >
+                    Copy Text
+                  </button>
+                  {showCopyNotification && (
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-800 text-white text-sm rounded shadow-lg whitespace-nowrap">
+                      Copied to clipboard!
+                    </div>
+                  )}
+                </div>
                 <button
                   onClick={() => setShowPreview(!showPreview)}
                   className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors"
