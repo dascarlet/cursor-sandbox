@@ -9,6 +9,7 @@ import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import dynamic from 'next/dynamic';
 import { useLanguage } from './contexts/LanguageContext';
+import PageTitle from './components/PageTitle';
 
 // Import Prism theme
 import 'prismjs/themes/prism-tomorrow.min.css';
@@ -19,28 +20,31 @@ import { Article as ArticleType } from './types/article';
 import TopPage from './components/TopPage';
 
 // Initialize Prism on the client side only
-let prismInstance: any;
-if (typeof window !== 'undefined') {
-  prismInstance = require('prismjs');
-  require('prismjs/components/prism-javascript');
-  require('prismjs/components/prism-typescript');
-  require('prismjs/components/prism-jsx');
-  require('prismjs/components/prism-tsx');
-  require('prismjs/components/prism-css');
-  require('prismjs/components/prism-python');
-  require('prismjs/components/prism-java');
-  require('prismjs/components/prism-c');
-  require('prismjs/components/prism-cpp');
-  require('prismjs/components/prism-ruby');
-  require('prismjs/components/prism-rust');
-  require('prismjs/components/prism-go');
-  require('prismjs/components/prism-bash');
-  require('prismjs/components/prism-json');
-  require('prismjs/components/prism-yaml');
-  require('prismjs/components/prism-markdown');
-  require('prismjs/components/prism-sql');
-  require('prismjs/components/prism-php');
-}
+const loadPrism = () => {
+  if (typeof window !== 'undefined') {
+    const Prism = require('prismjs');
+    require('prismjs/components/prism-javascript');
+    require('prismjs/components/prism-typescript');
+    require('prismjs/components/prism-jsx');
+    require('prismjs/components/prism-tsx');
+    require('prismjs/components/prism-css');
+    require('prismjs/components/prism-python');
+    require('prismjs/components/prism-java');
+    require('prismjs/components/prism-c');
+    require('prismjs/components/prism-cpp');
+    require('prismjs/components/prism-ruby');
+    require('prismjs/components/prism-rust');
+    require('prismjs/components/prism-go');
+    require('prismjs/components/prism-bash');
+    require('prismjs/components/prism-json');
+    require('prismjs/components/prism-yaml');
+    require('prismjs/components/prism-markdown');
+    require('prismjs/components/prism-sql');
+    require('prismjs/components/prism-php');
+    return Prism;
+  }
+  return null;
+};
 
 const markdownExample = `# Markdown Example
 
@@ -175,13 +179,11 @@ export default function Home() {
 
   // Initialize Prism when the component mounts
   useEffect(() => {
-    if (typeof window !== 'undefined' && prismInstance) {
-      // Initialize Prism
-      prismInstance.manual = true;
-      // Highlight all code blocks
+    const Prism = loadPrism();
+    if (Prism) {
       requestAnimationFrame(() => {
-        document.querySelectorAll('code[class*="language-"]').forEach((block) => {
-          prismInstance.highlightElement(block);
+        document.querySelectorAll('pre code').forEach((block) => {
+          Prism.highlightElement(block);
         });
       });
     }
@@ -189,10 +191,11 @@ export default function Home() {
 
   // Update highlighting when content changes
   useEffect(() => {
-    if (typeof window !== 'undefined' && prismInstance && selectedArticle?.content) {
+    const Prism = loadPrism();
+    if (Prism && selectedArticle?.content) {
       requestAnimationFrame(() => {
-        document.querySelectorAll('code[class*="language-"]').forEach((block) => {
-          prismInstance.highlightElement(block);
+        document.querySelectorAll('pre code').forEach((block) => {
+          Prism.highlightElement(block);
         });
       });
     }
@@ -276,7 +279,8 @@ export default function Home() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex h-screen">
+      <PageTitle />
       <Sidebar 
         onArticleSelect={setSelectedArticle} 
         onNavigate={setCurrentPage}
@@ -354,10 +358,10 @@ export default function Home() {
                           remarkPlugins={[remarkGfm, remarkBreaks]}
                           rehypePlugins={[rehypeRaw, rehypeSlug, rehypeAutolinkHeadings]}
                           components={{
-                            code: ({ node, inline, className, children, ...props }) => {
+                            code: ({ node, className, children, ...props }) => {
                               const match = /language-(\w+)/.exec(className || '');
-                              return !inline && match ? (
-                                <pre className={`language-${match[1]}`}>
+                              return match ? (
+                                <pre>
                                   <code className={`language-${match[1]}`} {...props}>
                                     {String(children).replace(/\n$/, '')}
                                   </code>

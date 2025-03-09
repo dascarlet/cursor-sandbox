@@ -8,7 +8,10 @@ import { LanguageProvider } from './contexts/LanguageContext';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "マークダウン エディター"
+  title: {
+    template: '%s',
+    default: 'Markdown Editor'
+  }
 };
 
 export default function RootLayout({
