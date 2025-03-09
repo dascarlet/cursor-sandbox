@@ -10,6 +10,7 @@ const STORAGE_KEY = 'articles';
 const STORAGE_KEY_PREFIX = 'article_content_';
 const STORAGE_KEY_TITLE_PREFIX = 'article_title_';
 const SORT_ORDER_KEY = 'articles_sort_order';
+const LAST_PAGE_KEY = 'lastPage';
 
 // Helper function to safely access localStorage
 const getStorageItem = (key: string) => {
@@ -38,12 +39,14 @@ interface ArticleListProps {
 
 export default function ArticleList({ onArticleSelect, onNavigate }: ArticleListProps) {
   const [articles, setArticles] = useState<ArticleType[]>([]);
-  const [newTitle, setNewTitle] = useState('');
   const [selectedArticle, setSelectedArticle] = useState<ArticleType | null>(null);
+  const [newTitle, setNewTitle] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(() => {
-    // Initialize sort order from localStorage or default to 'desc'
-    return (getStorageItem(SORT_ORDER_KEY) as 'asc' | 'desc') || 'desc';
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem(SORT_ORDER_KEY) as 'asc' | 'desc') || 'desc';
+    }
+    return 'desc';
   });
   const { t } = useLanguage();
 
@@ -62,19 +65,19 @@ export default function ArticleList({ onArticleSelect, onNavigate }: ArticleList
     });
   };
 
-  // Load articles from localStorage on component mount
+  // Load articles on client-side mount
   useEffect(() => {
     setIsLoading(true);
     try {
       // Load articles list
-      const storedArticles = getStorageItem(STORAGE_KEY);
+      const storedArticles = localStorage.getItem(STORAGE_KEY);
       if (storedArticles) {
         const parsedArticles = JSON.parse(storedArticles);
         // Convert stored date strings back to Date objects and load content
         const articlesWithDates = parsedArticles.map((article: { id: string; title: string; createdAt: string }) => {
           // Load content and title for each article
-          const content = getStorageItem(STORAGE_KEY_PREFIX + article.id) || '';
-          const title = getStorageItem(STORAGE_KEY_TITLE_PREFIX + article.id) || article.title;
+          const content = localStorage.getItem(STORAGE_KEY_PREFIX + article.id) || '';
+          const title = localStorage.getItem(STORAGE_KEY_TITLE_PREFIX + article.id) || article.title;
           return {
             ...article,
             content,
@@ -87,18 +90,20 @@ export default function ArticleList({ onArticleSelect, onNavigate }: ArticleList
         setArticles(articlesWithDates);
 
         // Then try to restore the selected article
-        const lastSelectedId = getStorageItem('lastSelectedArticleId');
+        const lastSelectedId = localStorage.getItem('lastSelectedArticleId');
         if (lastSelectedId) {
           const lastSelected = articlesWithDates.find((article: ArticleType) => article.id === lastSelectedId);
           if (lastSelected) {
             setSelectedArticle(lastSelected);
             onArticleSelect(lastSelected);
+            // Switch to articles page when an article is selected
+            onNavigate?.('articles');
           }
         }
       }
     } catch (error) {
       console.error('Error loading articles:', error);
-      removeStorageItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_KEY);
     } finally {
       setIsLoading(false);
     }
@@ -213,6 +218,8 @@ export default function ArticleList({ onArticleSelect, onNavigate }: ArticleList
     onArticleSelect(updatedArticle);
     // Save the selected article ID
     setStorageItem('lastSelectedArticleId', article.id);
+    // Save the current page
+    setStorageItem(LAST_PAGE_KEY, 'articles');
     // Switch to articles page when an article is clicked
     onNavigate?.('articles');
   };

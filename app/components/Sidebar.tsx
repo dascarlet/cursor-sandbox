@@ -7,6 +7,8 @@ import { FaHome, FaNewspaper, FaSun, FaMoon } from 'react-icons/fa';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
+const LAST_PAGE_KEY = 'lastPage';
+
 interface SidebarProps {
   onArticleSelect: (article: ArticleType | null) => void;
   onNavigate: (page: 'home' | 'articles') => void;
@@ -16,6 +18,11 @@ interface SidebarProps {
 export default function Sidebar({ onArticleSelect, onNavigate, currentPage }: SidebarProps) {
   const { theme, toggleTheme } = useTheme();
   const { t } = useLanguage();
+
+  const handleNavigate = (page: 'home' | 'articles') => {
+    localStorage.setItem(LAST_PAGE_KEY, page);
+    onNavigate(page);
+  };
 
   return (
     <div className="fixed top-0 left-0 h-screen w-80 bg-white border-r border-gray-200 shadow-lg p-4 overflow-y-auto">
@@ -34,7 +41,7 @@ export default function Sidebar({ onArticleSelect, onNavigate, currentPage }: Si
         <ul className="space-y-2">
           <li>
             <button
-              onClick={() => onNavigate('home')}
+              onClick={() => handleNavigate('home')}
               className={`w-full flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
                 currentPage === 'home'
                   ? 'bg-blue-50 text-blue-600'
@@ -47,7 +54,7 @@ export default function Sidebar({ onArticleSelect, onNavigate, currentPage }: Si
           </li>
           <li>
             <button
-              onClick={() => onNavigate('articles')}
+              onClick={() => handleNavigate('articles')}
               className={`w-full flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
                 currentPage === 'articles'
                   ? 'bg-blue-50 text-blue-600'

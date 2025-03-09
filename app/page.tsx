@@ -193,10 +193,40 @@ export default function Home() {
   const [showPreview, setShowPreview] = useState(true);
   const [showEditor, setShowEditor] = useState(true);
   const [showCopyNotification, setShowCopyNotification] = useState(false);
-  const [currentPage, setCurrentPage] = useState<'home' | 'articles'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'articles'>('articles');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
   const { t } = useLanguage();
+
+  // Load last selected article and page on client-side mount
+  useEffect(() => {
+    // Load last page
+    const lastPage = localStorage.getItem('lastPage') as 'home' | 'articles';
+    if (lastPage) {
+      setCurrentPage(lastPage);
+    }
+
+    // Load last selected article
+    const lastSelectedId = localStorage.getItem('lastSelectedArticleId');
+    if (lastSelectedId) {
+      const storedArticles = localStorage.getItem('articles');
+      if (storedArticles) {
+        const articles = JSON.parse(storedArticles);
+        const lastSelected = articles.find((article: ArticleType) => article.id === lastSelectedId);
+        if (lastSelected) {
+          const content = localStorage.getItem(STORAGE_KEY_PREFIX + lastSelectedId) || '';
+          const title = localStorage.getItem(STORAGE_KEY_TITLE_PREFIX + lastSelectedId) || lastSelected.title;
+          const articleWithContent = {
+            ...lastSelected,
+            content,
+            title,
+            createdAt: new Date(lastSelected.createdAt)
+          };
+          setSelectedArticle(articleWithContent);
+        }
+      }
+    }
+  }, []);
 
   // Load saved content and title when article is selected
   useEffect(() => {
