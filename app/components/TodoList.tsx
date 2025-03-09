@@ -32,9 +32,10 @@ const removeStorageItem = (key: string) => {
 
 interface TodoListProps {
   onTodoSelect: (todo: TodoType | null) => void;
+  onNavigate?: (page: 'home' | 'articles') => void;
 }
 
-export default function TodoList({ onTodoSelect }: TodoListProps) {
+export default function TodoList({ onTodoSelect, onNavigate }: TodoListProps) {
   const [todos, setTodos] = useState<TodoType[]>([]);
   const [newTitle, setNewTitle] = useState('');
   const [selectedTodo, setSelectedTodo] = useState<TodoType | null>(null);
@@ -166,6 +167,8 @@ export default function TodoList({ onTodoSelect }: TodoListProps) {
     onTodoSelect(updatedTodo);
     // Save the selected todo ID
     setStorageItem('lastSelectedTodoId', todo.id);
+    // Switch to articles page when an article is clicked
+    onNavigate?.('articles');
   };
 
   const updateContent = (content: string) => {
