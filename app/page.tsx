@@ -7,44 +7,34 @@ import remarkBreaks from 'remark-breaks';
 import rehypeRaw from 'rehype-raw';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs';
+import js from 'react-syntax-highlighter/dist/cjs/languages/hljs/javascript';
+import ts from 'react-syntax-highlighter/dist/cjs/languages/hljs/typescript';
+import xml from 'react-syntax-highlighter/dist/cjs/languages/hljs/xml';
+import css from 'react-syntax-highlighter/dist/cjs/languages/hljs/css';
+import json from 'react-syntax-highlighter/dist/cjs/languages/hljs/json';
+import markdown from 'react-syntax-highlighter/dist/cjs/languages/hljs/markdown';
+import rust from 'react-syntax-highlighter/dist/cjs/languages/hljs/rust';
 import dynamic from 'next/dynamic';
 import { useLanguage } from './contexts/LanguageContext';
 import PageTitle from './components/PageTitle';
-
-// Import Prism theme
-import 'prismjs/themes/prism-tomorrow.min.css';
+import { FaCopy, FaEdit, FaCheck, FaTimes } from 'react-icons/fa';
 
 // Import Sidebar and types
 import Sidebar from './components/Sidebar';
 import { Article as ArticleType } from './types/article';
 import TopPage from './components/TopPage';
 
-// Initialize Prism on the client side only
-const loadPrism = () => {
-  if (typeof window !== 'undefined') {
-    const Prism = require('prismjs');
-    require('prismjs/components/prism-javascript');
-    require('prismjs/components/prism-typescript');
-    require('prismjs/components/prism-jsx');
-    require('prismjs/components/prism-tsx');
-    require('prismjs/components/prism-css');
-    require('prismjs/components/prism-python');
-    require('prismjs/components/prism-java');
-    require('prismjs/components/prism-c');
-    require('prismjs/components/prism-cpp');
-    require('prismjs/components/prism-ruby');
-    require('prismjs/components/prism-rust');
-    require('prismjs/components/prism-go');
-    require('prismjs/components/prism-bash');
-    require('prismjs/components/prism-json');
-    require('prismjs/components/prism-yaml');
-    require('prismjs/components/prism-markdown');
-    require('prismjs/components/prism-sql');
-    require('prismjs/components/prism-php');
-    return Prism;
-  }
-  return null;
-};
+// Register languages for syntax highlighting
+SyntaxHighlighter.registerLanguage('javascript', js);
+SyntaxHighlighter.registerLanguage('typescript', ts);
+SyntaxHighlighter.registerLanguage('jsx', xml);
+SyntaxHighlighter.registerLanguage('tsx', xml);
+SyntaxHighlighter.registerLanguage('css', css);
+SyntaxHighlighter.registerLanguage('json', json);
+SyntaxHighlighter.registerLanguage('markdown', markdown);
+SyntaxHighlighter.registerLanguage('rust', rust);
 
 const markdownExample = `# Markdown Example
 
@@ -113,10 +103,67 @@ hello('world');
 Here's a sentence with a footnote[^1].
 
 [^1]: This is the footnote.
+
+## Code Examples
+
+### Rust Example
+
+\`\`\`rust
+use std::collections::HashMap;
+
+// A simple struct to represent a person
+#[derive(Debug)]
+struct Person {
+    name: String,
+    age: u32,
+}
+
+impl Person {
+    // Constructor
+    fn new(name: String, age: u32) -> Person {
+        Person { name, age }
+    }
+
+    // Method to have a birthday
+    fn have_birthday(&mut self) {
+        self.age += 1;
+        println!("Happy birthday {}! You are now {} years old.", self.name, self.age);
+    }
+}
+
+fn main() {
+    // Create a new person
+    let mut alice = Person::new(String::from("Alice"), 30);
+    
+    // Create a hash map to store people
+    let mut people = HashMap::new();
+    people.insert(alice.name.clone(), alice.age);
+    
+    // Have a birthday
+    alice.have_birthday();
+    
+    // Pattern matching example
+    match alice.age {
+        0..=12 => println!("You're still a child!"),
+        13..=19 => println!("You're a teenager!"),
+        20..=29 => println!("You're in your twenties!"),
+        _ => println!("You're a proper adult!"),
+    }
+    
+    // Using Option type
+    let maybe_person = people.get(&alice.name);
+    if let Some(age) = maybe_person {
+        println!("Found person with age: {}", age);
+    }
+}
+\`\`\`
+
+## Other content...
 `;
 
-// Add storage key constant
+// Add storage key constants
 const STORAGE_KEY_PREFIX = 'article_content_';
+const STORAGE_KEY_TITLE_PREFIX = 'article_title_';
 
 // Format date to JST timestamp
 const formatJSTDate = (dateStr: string) => {
@@ -147,16 +194,27 @@ export default function Home() {
   const [showEditor, setShowEditor] = useState(true);
   const [showCopyNotification, setShowCopyNotification] = useState(false);
   const [currentPage, setCurrentPage] = useState<'home' | 'articles'>('home');
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState('');
   const { t } = useLanguage();
 
-  // Load saved content when article is selected
+  // Load saved content and title when article is selected
   useEffect(() => {
     if (selectedArticle?.id) {
       const savedContent = localStorage.getItem(STORAGE_KEY_PREFIX + selectedArticle.id);
+      const savedTitle = localStorage.getItem(STORAGE_KEY_TITLE_PREFIX + selectedArticle.id);
+      
       if (savedContent && savedContent !== selectedArticle.content) {
         setSelectedArticle(prev => ({
           ...prev!,
           content: savedContent
+        }));
+      }
+      
+      if (savedTitle && savedTitle !== selectedArticle.title) {
+        setSelectedArticle(prev => ({
+          ...prev!,
+          title: savedTitle
         }));
       }
     }
@@ -177,29 +235,20 @@ export default function Home() {
     }
   }, [selectedArticle?.content, selectedArticle?.id]);
 
-  // Initialize Prism when the component mounts
+  // Save title to localStorage whenever it changes
   useEffect(() => {
-    const Prism = loadPrism();
-    if (Prism) {
-      requestAnimationFrame(() => {
-        document.querySelectorAll('pre code').forEach((block) => {
-          Prism.highlightElement(block);
-        });
-      });
+    if (selectedArticle?.id && selectedArticle?.title !== undefined) {
+      const currentTitle = localStorage.getItem(STORAGE_KEY_TITLE_PREFIX + selectedArticle.id);
+      if (currentTitle !== selectedArticle.title) {
+        localStorage.setItem(STORAGE_KEY_TITLE_PREFIX + selectedArticle.id, selectedArticle.title);
+        setIsSaving(true);
+        const timer = setTimeout(() => {
+          setIsSaving(false);
+        }, 1000);
+        return () => clearTimeout(timer);
+      }
     }
-  }, []);
-
-  // Update highlighting when content changes
-  useEffect(() => {
-    const Prism = loadPrism();
-    if (Prism && selectedArticle?.content) {
-      requestAnimationFrame(() => {
-        document.querySelectorAll('pre code').forEach((block) => {
-          Prism.highlightElement(block);
-        });
-      });
-    }
-  }, [selectedArticle?.content]);
+  }, [selectedArticle?.title, selectedArticle?.id]);
 
   const handleEditorKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Tab') {
@@ -278,6 +327,40 @@ export default function Home() {
     }
   };
 
+  const handleTitleEdit = () => {
+    if (!isEditingTitle) {
+      setEditedTitle(selectedArticle?.title || '');
+      setIsEditingTitle(true);
+    }
+  };
+
+  const handleTitleSave = () => {
+    if (selectedArticle && editedTitle.trim()) {
+      const newTitle = editedTitle.trim();
+      setSelectedArticle(prev => ({
+        ...prev!,
+        title: newTitle
+      }));
+      localStorage.setItem(STORAGE_KEY_TITLE_PREFIX + selectedArticle.id, newTitle);
+      setIsEditingTitle(false);
+      setIsSaving(true);
+      setTimeout(() => setIsSaving(false), 1000);
+    }
+  };
+
+  const handleTitleCancel = () => {
+    setIsEditingTitle(false);
+    setEditedTitle(selectedArticle?.title || '');
+  };
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleTitleSave();
+    } else if (e.key === 'Escape') {
+      handleTitleCancel();
+    }
+  };
+
   return (
     <div className="flex h-screen">
       <PageTitle />
@@ -294,7 +377,43 @@ export default function Home() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-baseline gap-4">
-                  <h1 className="text-3xl font-bold text-gray-800">{selectedArticle.title}</h1>
+                  {isEditingTitle ? (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={editedTitle}
+                        onChange={(e) => setEditedTitle(e.target.value)}
+                        onKeyDown={handleTitleKeyDown}
+                        className="text-3xl font-bold text-gray-800 border-b-2 border-blue-500 focus:outline-none bg-transparent"
+                        autoFocus
+                      />
+                      <button
+                        onClick={handleTitleSave}
+                        className="p-1 text-green-500 hover:text-green-600"
+                        title={t('common.save')}
+                      >
+                        <FaCheck />
+                      </button>
+                      <button
+                        onClick={handleTitleCancel}
+                        className="p-1 text-red-500 hover:text-red-600"
+                        title={t('common.cancel')}
+                      >
+                        <FaTimes />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <h1 className="text-3xl font-bold text-gray-800">{selectedArticle.title}</h1>
+                      <button
+                        onClick={handleTitleEdit}
+                        className="p-1 text-gray-400 hover:text-gray-600"
+                        title={t('common.edit')}
+                      >
+                        <FaEdit />
+                      </button>
+                    </div>
+                  )}
                   <span className="text-gray-400 text-sm font-mono">
                     {formatJSTDate(selectedArticle.createdAt.toString())}
                   </span>
@@ -358,24 +477,32 @@ export default function Home() {
                           remarkPlugins={[remarkGfm, remarkBreaks]}
                           rehypePlugins={[rehypeRaw, rehypeSlug, rehypeAutolinkHeadings]}
                           components={{
-                            code: ({ node, className, children, ...props }) => {
+                            code: ({ className, children, ...props }) => {
                               const match = /language-(\w+)/.exec(className || '');
-                              return match ? (
-                                <pre>
-                                  <code className={`language-${match[1]}`} {...props}>
-                                    {String(children).replace(/\n$/, '')}
-                                  </code>
-                                </pre>
-                              ) : (
+                              const isInline = !match;
+                              return isInline ? (
                                 <code className={className} {...props}>
                                   {children}
                                 </code>
+                              ) : (
+                                <SyntaxHighlighter
+                                  style={atomOneDark}
+                                  language={match[1]}
+                                  PreTag="div"
+                                  wrapLongLines
+                                  customStyle={{
+                                    fontSize: '1rem',
+                                    lineHeight: '1.5',
+                                    padding: '1rem',
+                                    borderRadius: '0.5rem',
+                                    margin: '1rem 0'
+                                  }}
+                                  {...props}
+                                >
+                                  {String(children).replace(/\n$/, '')}
+                                </SyntaxHighlighter>
                               );
-                            },
-                            pre: ({ children }) => <>{children}</>,
-                            input: ({ type, checked, ...props }) => (
-                              <input type={type} checked={checked} readOnly {...props} />
-                            ),
+                            }
                           }}
                         >
                           {selectedArticle.content || 'Start writing your article using markdown...'}
