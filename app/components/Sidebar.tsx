@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import TodoList from './TodoList';
 import { Todo as TodoType } from '../types/todo';
-import { FaHome, FaNewspaper } from 'react-icons/fa';
+import { FaHome, FaNewspaper, FaSun, FaMoon } from 'react-icons/fa';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface SidebarProps {
   onTodoSelect: (todo: TodoType | null) => void;
@@ -12,8 +13,21 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ onTodoSelect, onNavigate, currentPage }: SidebarProps) {
+  const { theme, toggleTheme } = useTheme();
+
   return (
     <div className="fixed top-0 left-0 h-screen w-80 bg-white border-r border-gray-200 shadow-lg p-4 overflow-y-auto">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-xl font-bold text-gray-800">Markdown Editor</h1>
+        <button
+          onClick={toggleTheme}
+          className="p-2 text-gray-600 hover:text-gray-800 transition-colors rounded-lg hover:bg-gray-100"
+          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {theme === 'dark' ? <FaSun size={18} /> : <FaMoon size={18} />}
+        </button>
+      </div>
+
       <nav className="mb-8">
         <ul className="space-y-2">
           <li>

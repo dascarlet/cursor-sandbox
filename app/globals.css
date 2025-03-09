@@ -7,14 +7,104 @@
   --foreground: #171717;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root.dark {
+  --background: #1a1a1a;
+  --foreground: #e5e5e5;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+.dark body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Dark mode styles */
+.dark .bg-white {
+  background-color: #1a1a1a;
+}
+
+.dark .bg-gray-50 {
+  background-color: #111111;
+}
+
+.dark .bg-gray-100 {
+  background-color: #1f1f1f;
+}
+
+.dark .text-gray-800 {
+  color: #e5e5e5;
+}
+
+.dark .text-gray-600 {
+  color: #a3a3a3;
+}
+
+.dark .text-gray-400 {
+  color: #737373;
+}
+
+.dark .border-gray-200 {
+  border-color: #2d2d2d;
+}
+
+.dark .border-gray-100 {
+  border-color: #262626;
+}
+
+.dark .hover\:bg-gray-50:hover {
+  background-color: #1f1f1f;
+}
+
+.dark .hover\:bg-gray-200:hover {
+  background-color: #262626;
+}
+
+/* Dark mode prose styles */
+.dark .prose {
+  color: #e5e5e5;
+}
+
+.dark .prose h1,
+.dark .prose h2,
+.dark .prose h3,
+.dark .prose h4,
+.dark .prose h5,
+.dark .prose h6 {
+  color: #e5e5e5;
+}
+
+.dark .prose strong {
+  color: #e5e5e5;
+}
+
+.dark .prose code {
+  color: #60a5fa;
+  background-color: #1f1f1f;
+}
+
+.dark .prose a {
+  color: #60a5fa;
+}
+
+.dark .prose blockquote {
+  color: #a3a3a3;
+  border-color: #2d2d2d;
+}
+
+.dark .prose thead {
+  color: #e5e5e5;
+  border-color: #2d2d2d;
+}
+
+.dark .prose tbody tr {
+  border-color: #2d2d2d;
+}
+
+.dark .prose td {
+  color: #e5e5e5;
+  border-color: #2d2d2d;
 }
