@@ -16,6 +16,7 @@ export default function TopPage() {
         <div className="text-center flex-grow">
           <h1 className="text-4xl font-bold text-gray-800">{t('topPage.welcome')}</h1>
           <p className="text-xl text-gray-600 mt-4">{t('topPage.subtitle')}</p>
+          <p className="text-sm text-amber-600 mt-2 font-medium">{t('topPage.storageNotice')}</p>
         </div>
         <button
           onClick={() => setLanguage(language === 'en' ? 'ja' : 'en')}

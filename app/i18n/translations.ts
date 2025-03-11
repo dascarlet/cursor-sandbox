@@ -32,6 +32,7 @@ export const translations = {
     topPage: {
       welcome: 'Welcome to Markdown Editor',
       subtitle: 'A modern, feature-rich markdown editor for your writing needs',
+      storageNotice: 'All data is stored locally in your browser. We do not save any data to our servers.',
       features: {
         markdownPreview: {
           title: 'Real-time Markdown Preview',
@@ -93,6 +94,7 @@ export const translations = {
     topPage: {
       welcome: 'マークダウン エディターへようこそ',
       subtitle: 'モダンで機能豊富なマークダウンエディターで、快適な執筆体験を',
+      storageNotice: 'すべてのデータはブラウザのローカルストレージに保存されます。サーバーには一切保存されません。',
       features: {
         markdownPreview: {
           title: 'リアルタイムプレビュー',
